@@ -107,11 +107,11 @@ export default function SettingsScreen() {
   }
 
   function handlePrivacyPolicy() {
-    Linking.openURL('https://karamafandi.uk/pedestal/privacy');
+    Linking.openURL('https://thomasthumb1989-blip.github.io/pedestal/privacy.html');
   }
 
   function handleTerms() {
-    Linking.openURL('https://karamafandi.uk/pedestal/terms');
+    Linking.openURL('https://thomasthumb1989-blip.github.io/pedestal/terms.html');
   }
 
   function handleRateApp() {
