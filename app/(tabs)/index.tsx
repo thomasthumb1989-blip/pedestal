@@ -11,7 +11,7 @@ import { AIConsentModal } from '@/components/AIConsentModal';
 import { PaywallGate } from '@/components/PaywallGate';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
-import { transcribeAudio } from '@/src/services/transcription';
+import { transcribeAudio, TranscriptionDebug } from '@/src/services/transcription';
 import { analyzeSpeech } from '@/src/services/speechAnalysis';
 import { useSessionHistory } from '@/src/hooks/useSessionHistory';
 import { useAIConsent } from '@/src/hooks/useAIConsent';
@@ -204,14 +204,22 @@ export default function PracticeScreen() {
     try {
       await recording.stopAndUnloadAsync();
       const uri = recording.getURI();
+      console.log('[RECORD] Recording stopped. URI:', uri);
+      console.log('[RECORD] Duration:', durationSeconds, 'seconds');
+
       if (!uri) {
+        console.log('[RECORD] ERROR: No URI from recording');
         setError(STRINGS.ERRORS.RECORDING_FAILED);
         setIsAnalyzing(false);
         return;
       }
 
       const result = await transcribeAudio(uri);
+      console.log('[RECORD] Transcription ok:', result.ok);
+      console.log('[RECORD] Debug:', JSON.stringify(result.debug, null, 2));
+
       if (!result.ok) {
+        console.log('[RECORD] Transcription failed:', result.error);
         setError(result.error);
         setIsAnalyzing(false);
         return;
@@ -219,8 +227,13 @@ export default function PracticeScreen() {
 
       const transcriptText = result.text;
       const metrics = analyzeSpeech(transcriptText, durationSeconds);
+      console.log('[RECORD] Transcript:', transcriptText);
+      console.log('[RECORD] Word count:', metrics.totalWords, '| Min required:', 3);
+      console.log('[RECORD] tooShort:', metrics.tooShort);
+      console.log('[RECORD] Clarity:', metrics.clarityScore, '| WPM:', metrics.wordsPerMinute);
 
       if (metrics.tooShort) {
+        console.log('[RECORD] ERROR: Too few words —', metrics.totalWords, '< 3');
         setError(STRINGS.ERRORS.RECORDING_TOO_SHORT);
         setIsAnalyzing(false);
         return;
@@ -236,6 +249,9 @@ export default function PracticeScreen() {
         transcript: transcriptText,
       });
 
+      // Pass debug info to results screen
+      const debugStr = JSON.stringify(result.debug);
+
       router.push({
         pathname: '/results',
         params: {
@@ -246,9 +262,12 @@ export default function PracticeScreen() {
           fillerCount: metrics.fillerCount.toString(),
           fillerPercentage: metrics.fillerPercentage.toString(),
           totalWords: metrics.totalWords.toString(),
+          _debug: debugStr,
         },
       });
-    } catch {
+    } catch (e: any) {
+      console.log('[RECORD] EXCEPTION:', e.message);
+      console.log('[RECORD] Stack:', e.stack);
       setError(STRINGS.ERRORS.TRANSCRIPTION_FAILED);
     } finally {
       setIsAnalyzing(false);
