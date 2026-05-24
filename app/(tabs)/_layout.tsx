@@ -62,6 +62,7 @@ export default function TabLayout() {
         name="index"
         options={{
           title: STRINGS.TABS.PRACTICE,
+          tabBarLabel: STRINGS.TABS.PRACTICE,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'mic' : 'mic-outline'}
@@ -69,29 +70,13 @@ export default function TabLayout() {
               color={color}
             />
           ),
-          tabBarLabel: ({ focused }) =>
-            focused ? STRINGS.TABS.PRACTICE : undefined,
-        }}
-      />
-      <Tabs.Screen
-        name="progress"
-        options={{
-          title: STRINGS.PROGRESS.TITLE,
-          tabBarIcon: ({ color, focused }) => (
-            <Ionicons
-              name={focused ? 'bar-chart' : 'bar-chart-outline'}
-              size={24}
-              color={color}
-            />
-          ),
-          tabBarLabel: ({ focused }) =>
-            focused ? STRINGS.TABS.PROGRESS : undefined,
         }}
       />
       <Tabs.Screen
         name="learn"
         options={{
           title: STRINGS.LEARN.TITLE,
+          tabBarLabel: STRINGS.TABS.LEARN,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'book' : 'book-outline'}
@@ -99,14 +84,27 @@ export default function TabLayout() {
               color={color}
             />
           ),
-          tabBarLabel: ({ focused }) =>
-            focused ? STRINGS.TABS.LEARN : undefined,
+        }}
+      />
+      <Tabs.Screen
+        name="progress"
+        options={{
+          title: STRINGS.PROGRESS.TITLE,
+          tabBarLabel: STRINGS.TABS.PROGRESS,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'bar-chart' : 'bar-chart-outline'}
+              size={24}
+              color={color}
+            />
+          ),
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: STRINGS.SETTINGS.TITLE,
+          tabBarLabel: STRINGS.TABS.SETTINGS,
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={focused ? 'settings' : 'settings-outline'}
@@ -114,8 +112,6 @@ export default function TabLayout() {
               color={color}
             />
           ),
-          tabBarLabel: ({ focused }) =>
-            focused ? STRINGS.TABS.SETTINGS : undefined,
         }}
       />
     </Tabs>
