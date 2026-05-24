@@ -192,7 +192,7 @@ export default function PracticeScreen() {
 
     if (durationSeconds < MIN_DURATION) {
       await recording.stopAndUnloadAsync();
-      setError(`You recorded for ${durationSeconds} seconds — try for at least ${MIN_DURATION} seconds`);
+      setError(STRINGS.PRACTICE.MIN_DURATION);
       return;
     }
 
