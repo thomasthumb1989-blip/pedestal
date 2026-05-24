@@ -15,8 +15,9 @@ import { analyzeSpeech } from '@/src/services/speechAnalysis';
 import { useSessionHistory } from '@/src/hooks/useSessionHistory';
 import { useAIConsent } from '@/src/hooks/useAIConsent';
 
-const MIN_DURATION = 10;
+const MIN_DURATION = 5;
 const MAX_DURATION = 300;
+const COUNTDOWN_SECONDS = 3;
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -35,9 +36,11 @@ export default function PracticeScreen() {
   const [elapsed, setElapsed] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState(0); // 0 = not counting down
 
   const recordingRef = useRef<Audio.Recording | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   // Recording pulse rings
@@ -125,6 +128,7 @@ export default function PracticeScreen() {
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      if (countdownRef.current) clearInterval(countdownRef.current);
     };
   }, []);
 
@@ -185,7 +189,7 @@ export default function PracticeScreen() {
 
     if (durationSeconds < MIN_DURATION) {
       await recording.stopAndUnloadAsync();
-      setError(STRINGS.PRACTICE.MIN_DURATION);
+      setError(`You recorded for ${durationSeconds} seconds — try for at least ${MIN_DURATION} seconds`);
       return;
     }
 
@@ -245,13 +249,45 @@ export default function PracticeScreen() {
     }
   }
 
+  function startCountdown() {
+    if (!requireConsent()) return;
+    setError(null);
+    setCountdown(COUNTDOWN_SECONDS);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    countdownRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          if (countdownRef.current) clearInterval(countdownRef.current);
+          countdownRef.current = null;
+          startRecording();
+          return 0;
+        }
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        return prev - 1;
+      });
+    }, 1000);
+  }
+
+  function cancelCountdown() {
+    if (countdownRef.current) {
+      clearInterval(countdownRef.current);
+      countdownRef.current = null;
+    }
+    setCountdown(0);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }
+
   function handleRecordPress() {
     if (isAnalyzing) return;
+    if (countdown > 0) {
+      cancelCountdown();
+      return;
+    }
     if (isRecording) {
       stopRecording();
     } else {
-      if (!requireConsent()) return;
-      startRecording();
+      startCountdown();
     }
   }
 
@@ -314,7 +350,7 @@ export default function PracticeScreen() {
         {STRINGS.APP_NAME}
       </Text>
 
-      {!isRecording && (
+      {!isRecording && countdown === 0 && (
         <Pressable
           onPressIn={() => {
             Animated.timing(cardScale, {
@@ -400,12 +436,22 @@ export default function PracticeScreen() {
               style={({ pressed }) => [
                 styles.recordButton,
                 {
-                  backgroundColor: isRecording ? colors.error : 'transparent',
+                  backgroundColor: isRecording
+                    ? colors.error
+                    : countdown > 0
+                    ? colors.surfaceElevated
+                    : 'transparent',
+                  borderWidth: countdown > 0 ? 3 : 0,
+                  borderColor: countdown > 0 ? colors.accent : 'transparent',
                   transform: [{ scale: pressed ? 0.95 : 1 }],
                 },
               ]}
             >
-              {isRecording ? (
+              {countdown > 0 ? (
+                <Text style={{ fontSize: 48, fontWeight: '700', color: colors.accent }}>
+                  {countdown}
+                </Text>
+              ) : isRecording ? (
                 <Ionicons name="stop" size={36} color="#FFFFFF" />
               ) : (
                 <Image
@@ -418,9 +464,19 @@ export default function PracticeScreen() {
           </Animated.View>
         </View>
 
-        <Text style={[Typography.body, styles.tapText, { color: colors.textSecondary }]}>
-          {isRecording ? STRINGS.PRACTICE.TAP_TO_STOP : STRINGS.PRACTICE.TAP_TO_START}
+        <Text style={[Typography.body, styles.tapText, { color: countdown > 0 ? colors.accent : colors.textSecondary }]}>
+          {countdown > 0
+            ? STRINGS.PRACTICE.COUNTDOWN_READY
+            : isRecording
+            ? STRINGS.PRACTICE.TAP_TO_STOP
+            : STRINGS.PRACTICE.TAP_TO_START}
         </Text>
+
+        {!isRecording && countdown === 0 && !error && (
+          <Text style={[Typography.caption, { color: colors.textTertiary, marginTop: Spacing.xs }]}>
+            {STRINGS.PRACTICE.MIN_REQUIREMENT}
+          </Text>
+        )}
 
         {error && (
           <Text style={[Typography.caption, { color: colors.error, marginTop: Spacing.md, textAlign: 'center' }]}>

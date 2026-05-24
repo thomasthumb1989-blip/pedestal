@@ -25,7 +25,9 @@ export const STRINGS = {
     TAP_TO_START: 'Tap to start practicing',
     RECORDING: 'Recording...',
     TAP_TO_STOP: 'Tap to stop',
-    MIN_DURATION: 'Record at least 10 seconds',
+    MIN_DURATION: 'Record for at least 5 seconds',
+    MIN_REQUIREMENT: 'Record for at least 5 seconds',
+    COUNTDOWN_READY: 'Get ready to speak...',
     ANALYZING: 'Analyzing your speech...',
     IMPROMPTU_TITLE: 'Impromptu Mode',
     IMPROMPTU_BODY: 'Get a random topic and speak with no preparation',
@@ -40,7 +42,7 @@ export const STRINGS = {
     RECORDING: 'Speaking...',
     TAP_TO_STOP: 'Tap to finish',
     ANALYZING: 'Analyzing your speech...',
-    MIN_DURATION: 'Speak for at least 10 seconds',
+    MIN_DURATION: 'Speak for at least 5 seconds',
   },
 
   RESULTS: {
@@ -94,7 +96,7 @@ export const STRINGS = {
     TARGET: 'Target',
     TRY_AGAIN: 'Try Again',
     BACK_TO_DRILLS: 'Back to Drills',
-    MIN_DURATION: 'Record at least 10 seconds',
+    MIN_DURATION: 'Record for at least 5 seconds',
   },
 
   CONSENT: {
@@ -160,7 +162,7 @@ export const STRINGS = {
     SUBSCRIPTION_ERROR: 'Unable to verify subscription. Please try again.',
     NO_API_KEY: 'Speech analysis not configured. Check your API key.',
     TRANSCRIPTION_FAILED: 'Could not analyze speech. Please try again.',
-    RECORDING_TOO_SHORT: 'Recording too short for accurate analysis. Try speaking at least a few sentences.',
+    RECORDING_TOO_SHORT: 'Not enough words for accurate analysis. Try speaking at least a few full sentences.',
     SOMETHING_WRONG: 'Something went wrong',
     ERROR_BOUNDARY_BODY: 'The app encountered an unexpected error. Please restart to continue.',
     RESTART: 'Restart',

@@ -16,7 +16,7 @@ import { transcribeAudio } from '@/src/services/transcription';
 import { analyzeSpeech, SpeechMetrics } from '@/src/services/speechAnalysis';
 import { useAIConsent } from '@/src/hooks/useAIConsent';
 
-const MIN_DURATION = 10;
+const MIN_DURATION = 5;
 const MAX_DURATION = 120;
 
 function formatTime(seconds: number): string {

@@ -18,7 +18,7 @@ import { useSessionHistory } from '@/src/hooks/useSessionHistory';
 import { useAIConsent } from '@/src/hooks/useAIConsent';
 
 const THINK_TIME = 10;
-const MIN_DURATION = 10;
+const MIN_DURATION = 5;
 const MAX_DURATION = 180;
 
 type Phase = 'topic' | 'thinking' | 'recording' | 'analyzing';
