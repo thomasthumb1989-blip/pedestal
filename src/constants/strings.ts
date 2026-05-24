@@ -97,15 +97,36 @@ export const STRINGS = {
     MIN_DURATION: 'Record at least 10 seconds',
   },
 
+  CONSENT: {
+    TITLE: 'Speech Analysis',
+    BODY: 'Pedestal uses OpenAI\'s speech-to-text service to transcribe and analyze your recordings. Your audio is sent to OpenAI for processing. No recordings are stored on their servers after processing.',
+    AGREE: 'I Agree',
+    DECLINE: 'Not Now',
+    REQUIRED: 'Speech analysis requires sending audio to OpenAI. You can enable this in Settings.',
+  },
+
   SETTINGS: {
     TITLE: 'Settings',
     ACCOUNT: 'Account',
     SUBSCRIPTION: 'Subscription',
+    MANAGE_SUBSCRIPTION: 'Manage Subscription',
     RESTORE_PURCHASES: 'Restore Purchases',
+    RESTORE_SUCCESS: 'Purchases restored!',
+    RESTORE_NONE: 'No previous purchases found.',
+    RESTORE_ERROR: 'Could not restore purchases. Please try again.',
     NOTIFICATIONS: 'Notifications',
     PRIVACY_POLICY: 'Privacy Policy',
     TERMS: 'Terms of Use',
+    DELETE_ACCOUNT: 'Delete All Data',
+    DELETE_CONFIRM_TITLE: 'Delete All Data?',
+    DELETE_CONFIRM_BODY: 'This will permanently delete all your sessions, progress, and preferences. This cannot be undone.',
+    DELETE_CONFIRM: 'Delete Everything',
+    CANCEL: 'Cancel',
+    RATE_APP: 'Rate Pedestal',
     APP_VERSION: 'App Version',
+    GENERAL: 'General',
+    SUPPORT: 'Support',
+    DANGER: 'Danger Zone',
   },
 
   PAYWALL: {
@@ -139,5 +160,8 @@ export const STRINGS = {
     SUBSCRIPTION_ERROR: 'Unable to verify subscription. Please try again.',
     NO_API_KEY: 'Speech analysis not configured. Check your API key.',
     TRANSCRIPTION_FAILED: 'Could not analyze speech. Please try again.',
+    SOMETHING_WRONG: 'Something went wrong',
+    ERROR_BOUNDARY_BODY: 'The app encountered an unexpected error. Please restart to continue.',
+    RESTART: 'Restart',
   },
 } as const;

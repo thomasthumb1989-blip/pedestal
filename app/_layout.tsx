@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { AppErrorBoundary } from '@/components/ErrorBoundary';
 import { Colors } from '@/constants/Colors';
 
 export {
@@ -36,7 +37,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <AppErrorBoundary>
+      <RootLayoutNav />
+    </AppErrorBoundary>
+  );
 }
 
 function RootLayoutNav() {

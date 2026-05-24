@@ -7,12 +7,14 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { AIConsentModal } from '@/components/AIConsentModal';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 import { getRandomTopic, Topic } from '@/src/constants/topics';
 import { transcribeAudio } from '@/src/services/transcription';
 import { analyzeSpeech } from '@/src/services/speechAnalysis';
 import { useSessionHistory } from '@/src/hooks/useSessionHistory';
+import { useAIConsent } from '@/src/hooks/useAIConsent';
 
 const THINK_TIME = 10;
 const MIN_DURATION = 10;
@@ -32,6 +34,7 @@ export default function ImpromptuScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { saveSession } = useSessionHistory();
+  const { requireConsent, showModal, grantConsent, setShowModal } = useAIConsent();
 
   const [topic, setTopic] = useState<Topic>(() => getRandomTopic());
   const [phase, setPhase] = useState<Phase>('topic');
@@ -94,6 +97,7 @@ export default function ImpromptuScreen() {
 
   function handleStart() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (!requireConsent()) return;
     setPhase('thinking');
   }
 
@@ -355,6 +359,15 @@ export default function ImpromptuScreen() {
           {THINK_TIME}s to think, then recording starts
         </Text>
       </View>
+
+      <AIConsentModal
+        visible={showModal}
+        onAgree={grantConsent}
+        onDecline={() => {
+          setShowModal(false);
+          setError(STRINGS.CONSENT.REQUIRED);
+        }}
+      />
     </View>
   );
 }

@@ -7,11 +7,13 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { AIConsentModal } from '@/components/AIConsentModal';
 import { Colors, ColorTheme, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 import { getDrillById, Drill } from '@/src/constants/drills';
 import { transcribeAudio } from '@/src/services/transcription';
 import { analyzeSpeech, SpeechMetrics } from '@/src/services/speechAnalysis';
+import { useAIConsent } from '@/src/hooks/useAIConsent';
 
 const MIN_DURATION = 10;
 const MAX_DURATION = 120;
@@ -64,6 +66,7 @@ export default function DrillScreen() {
   const { drillId } = useLocalSearchParams<{ drillId: string }>();
 
   const drill = getDrillById(drillId ?? '');
+  const { requireConsent, showModal, grantConsent, setShowModal } = useAIConsent();
 
   const [isRecording, setIsRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -198,6 +201,7 @@ export default function DrillScreen() {
     if (isRecording) {
       stopRecording();
     } else {
+      if (!requireConsent()) return;
       startRecording();
     }
   }
@@ -384,6 +388,15 @@ export default function DrillScreen() {
           </Text>
         )}
       </View>
+
+      <AIConsentModal
+        visible={showModal}
+        onAgree={grantConsent}
+        onDecline={() => {
+          setShowModal(false);
+          setError(STRINGS.CONSENT.REQUIRED);
+        }}
+      />
     </ScrollView>
   );
 }

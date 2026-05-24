@@ -6,11 +6,13 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { AIConsentModal } from '@/components/AIConsentModal';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 import { transcribeAudio } from '@/src/services/transcription';
 import { analyzeSpeech } from '@/src/services/speechAnalysis';
 import { useSessionHistory } from '@/src/hooks/useSessionHistory';
+import { useAIConsent } from '@/src/hooks/useAIConsent';
 
 const MIN_DURATION = 10;
 const MAX_DURATION = 300;
@@ -26,6 +28,7 @@ export default function PracticeScreen() {
   const colors = Colors[colorScheme];
   const router = useRouter();
   const { saveSession } = useSessionHistory();
+  const { requireConsent, showModal, grantConsent, setShowModal } = useAIConsent();
 
   const [isRecording, setIsRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -181,6 +184,7 @@ export default function PracticeScreen() {
     if (isRecording) {
       stopRecording();
     } else {
+      if (!requireConsent()) return;
       startRecording();
     }
   }
@@ -269,6 +273,14 @@ export default function PracticeScreen() {
           </Text>
         )}
       </View>
+      <AIConsentModal
+        visible={showModal}
+        onAgree={grantConsent}
+        onDecline={() => {
+          setShowModal(false);
+          setError(STRINGS.CONSENT.REQUIRED);
+        }}
+      />
     </View>
   );
 }

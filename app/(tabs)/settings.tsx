@@ -1,22 +1,29 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors, ColorTheme, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
-import { APP_VERSION } from '@/src/constants/config';
+import { APP_VERSION, BUNDLE_ID } from '@/src/constants/config';
+
+const NOTIFICATIONS_KEY = '@pedestal_notifications';
 
 type SettingsRowProps = {
   icon: keyof typeof Ionicons.glyphMap;
   label: string;
   onPress?: () => void;
-  trailing?: string;
+  trailing?: React.ReactNode;
+  trailingText?: string;
+  destructive?: boolean;
   colors: ColorTheme;
 };
 
-function SettingsRow({ icon, label, onPress, trailing, colors }: SettingsRowProps) {
+function SettingsRow({ icon, label, onPress, trailing, trailingText, destructive, colors }: SettingsRowProps) {
   return (
     <Pressable
       onPress={() => {
@@ -31,14 +38,16 @@ function SettingsRow({ icon, label, onPress, trailing, colors }: SettingsRowProp
       ]}
     >
       <View style={styles.rowLeft}>
-        <Ionicons name={icon} size={20} color={colors.primary} />
-        <Text style={[Typography.body, { color: colors.text, marginLeft: Spacing.md }]}>
+        <Ionicons name={icon} size={20} color={destructive ? colors.error : colors.primary} />
+        <Text style={[Typography.body, { color: destructive ? colors.error : colors.text, marginLeft: Spacing.md }]}>
           {label}
         </Text>
       </View>
       {trailing ? (
+        trailing
+      ) : trailingText ? (
         <Text style={[Typography.caption, { color: colors.textTertiary }]}>
-          {trailing}
+          {trailingText}
         </Text>
       ) : onPress ? (
         <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
@@ -51,6 +60,87 @@ export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
+  const router = useRouter();
+
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem(NOTIFICATIONS_KEY).then((value) => {
+      setNotificationsEnabled(value === 'true');
+    });
+  }, []);
+
+  const toggleNotifications = useCallback(async (value: boolean) => {
+    setNotificationsEnabled(value);
+    await AsyncStorage.setItem(NOTIFICATIONS_KEY, value ? 'true' : 'false');
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }, []);
+
+  function handleManageSubscription() {
+    const url = Platform.select({
+      ios: 'https://apps.apple.com/account/subscriptions',
+      android: `https://play.google.com/store/account/subscriptions?package=${BUNDLE_ID}`,
+      default: 'https://apps.apple.com/account/subscriptions',
+    });
+    Linking.openURL(url);
+  }
+
+  async function handleRestorePurchases() {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setRestoreMessage(null);
+
+    try {
+      // TODO: Replace with RevenueCat restorePurchases
+      // const customerInfo = await Purchases.restorePurchases();
+      // if (customerInfo.entitlements.active['pro']) {
+      //   setRestoreMessage(STRINGS.SETTINGS.RESTORE_SUCCESS);
+      //   return;
+      // }
+
+      // Placeholder
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setRestoreMessage(STRINGS.SETTINGS.RESTORE_NONE);
+    } catch {
+      setRestoreMessage(STRINGS.SETTINGS.RESTORE_ERROR);
+    }
+  }
+
+  function handlePrivacyPolicy() {
+    Linking.openURL('https://karamafandi.uk/pedestal/privacy');
+  }
+
+  function handleTerms() {
+    Linking.openURL('https://karamafandi.uk/pedestal/terms');
+  }
+
+  function handleRateApp() {
+    const url = Platform.select({
+      ios: `https://apps.apple.com/app/id0000000000?action=write-review`, // Replace with real App Store ID
+      android: `market://details?id=${BUNDLE_ID}`,
+      default: `https://play.google.com/store/apps/details?id=${BUNDLE_ID}`,
+    });
+    Linking.openURL(url);
+  }
+
+  function handleDeleteAccount() {
+    Alert.alert(
+      STRINGS.SETTINGS.DELETE_CONFIRM_TITLE,
+      STRINGS.SETTINGS.DELETE_CONFIRM_BODY,
+      [
+        { text: STRINGS.SETTINGS.CANCEL, style: 'cancel' },
+        {
+          text: STRINGS.SETTINGS.DELETE_CONFIRM,
+          style: 'destructive',
+          onPress: async () => {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+            await AsyncStorage.clear();
+            router.replace('/onboarding');
+          },
+        },
+      ],
+    );
+  }
 
   return (
     <ScrollView
@@ -58,70 +148,98 @@ export default function SettingsScreen() {
       contentContainerStyle={{ paddingBottom: insets.bottom + Spacing.lg }}
       showsVerticalScrollIndicator={false}
     >
-      <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
-        <Text style={[Typography.caption, styles.sectionTitle, { color: colors.textSecondary }]}>
-          {STRINGS.SETTINGS.ACCOUNT}
-        </Text>
-        <SettingsRow
-          icon="person-outline"
-          label={STRINGS.SETTINGS.ACCOUNT}
-          onPress={() => {}}
-          colors={colors}
-        />
-      </View>
-
+      {/* Subscription */}
       <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
         <Text style={[Typography.caption, styles.sectionTitle, { color: colors.textSecondary }]}>
           {STRINGS.SETTINGS.SUBSCRIPTION}
         </Text>
         <SettingsRow
           icon="card-outline"
-          label={STRINGS.SETTINGS.SUBSCRIPTION}
-          onPress={() => {}}
+          label={STRINGS.SETTINGS.MANAGE_SUBSCRIPTION}
+          onPress={handleManageSubscription}
           colors={colors}
         />
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
         <SettingsRow
           icon="refresh-outline"
           label={STRINGS.SETTINGS.RESTORE_PURCHASES}
-          onPress={() => {}}
+          onPress={handleRestorePurchases}
           colors={colors}
         />
+        {restoreMessage && (
+          <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs, marginLeft: Spacing.xl + Spacing.md }]}>
+            {restoreMessage}
+          </Text>
+        )}
       </View>
 
+      {/* General */}
       <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
         <Text style={[Typography.caption, styles.sectionTitle, { color: colors.textSecondary }]}>
-          {STRINGS.SETTINGS.NOTIFICATIONS}
+          {STRINGS.SETTINGS.GENERAL}
         </Text>
         <SettingsRow
           icon="notifications-outline"
           label={STRINGS.SETTINGS.NOTIFICATIONS}
-          onPress={() => {}}
           colors={colors}
+          trailing={
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={toggleNotifications}
+              trackColor={{ false: colors.border, true: colors.primary }}
+              thumbColor="#FFFFFF"
+            />
+          }
         />
       </View>
 
+      {/* Support */}
       <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
+        <Text style={[Typography.caption, styles.sectionTitle, { color: colors.textSecondary }]}>
+          {STRINGS.SETTINGS.SUPPORT}
+        </Text>
+        <SettingsRow
+          icon="star-outline"
+          label={STRINGS.SETTINGS.RATE_APP}
+          onPress={handleRateApp}
+          colors={colors}
+        />
+        <View style={[styles.divider, { backgroundColor: colors.border }]} />
         <SettingsRow
           icon="shield-outline"
           label={STRINGS.SETTINGS.PRIVACY_POLICY}
-          onPress={() => {}}
+          onPress={handlePrivacyPolicy}
           colors={colors}
         />
         <View style={[styles.divider, { backgroundColor: colors.border }]} />
         <SettingsRow
           icon="document-text-outline"
           label={STRINGS.SETTINGS.TERMS}
-          onPress={() => {}}
+          onPress={handleTerms}
           colors={colors}
         />
       </View>
 
+      {/* Danger Zone */}
+      <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
+        <Text style={[Typography.caption, styles.sectionTitle, { color: colors.error }]}>
+          {STRINGS.SETTINGS.DANGER}
+        </Text>
+        <SettingsRow
+          icon="trash-outline"
+          label={STRINGS.SETTINGS.DELETE_ACCOUNT}
+          onPress={handleDeleteAccount}
+          destructive
+          colors={colors}
+        />
+      </View>
+
+      {/* App Version */}
       <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
         <SettingsRow
           icon="information-circle-outline"
           label={STRINGS.SETTINGS.APP_VERSION}
-          trailing={APP_VERSION}
+          trailingText={APP_VERSION}
           colors={colors}
         />
       </View>
@@ -154,6 +272,7 @@ const styles = StyleSheet.create({
   rowLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
   divider: {
     height: StyleSheet.hairlineWidth,
