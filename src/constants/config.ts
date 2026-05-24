@@ -1,6 +1,6 @@
 export const APP_NAME = 'Pedestal: Speech Coach';
 export const APP_SUBTITLE = 'Reduce Filler Words Faster';
-export const BUNDLE_ID = 'uk.karamafandi.pedestal';
+export const BUNDLE_ID = 'com.thomasdev.pedestal';
 export const APP_SCHEME = 'pedestal';
 export const APP_VERSION = '1.0.0';
 

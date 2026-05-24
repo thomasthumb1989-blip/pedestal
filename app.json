@@ -9,10 +9,10 @@
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "uk.karamafandi.pedestal"
+      "bundleIdentifier": "com.thomasdev.pedestal"
     },
     "android": {
-      "package": "uk.karamafandi.pedestal",
+      "package": "com.thomasdev.pedestal",
       "adaptiveIcon": {
         "backgroundColor": "#2D5A3D",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

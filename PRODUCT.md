@@ -57,7 +57,7 @@ We close the diagnosis-to-fix gap. Every speech problem we detect triggers a spe
 | Field | Value |
 |-------|-------|
 | **Title** | Pedestal: Speech Coach (22 chars) |
-| **Bundle ID** | uk.karamafandi.pedestal |
+| **Bundle ID** | com.thomasdev.pedestal |
 | **Primary Keyword** | speech coach (traffic 44, difficulty 43, KEI 1.03) |
 
 *Keyword data from Applyra API (2026-05-24, US App Store).*

@@ -3,7 +3,7 @@
 ## App Identity
 - App Name: Pedestal: Speech Coach
 - Subtitle: Reduce Filler Words Faster
-- Bundle ID: uk.karamafandi.pedestal
+- Bundle ID: com.thomasdev.pedestal
 - GitHub: thomasthumb1989-blip/pedestal
 
 ## Developer Setup
