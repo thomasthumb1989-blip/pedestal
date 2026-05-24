@@ -119,6 +119,7 @@ export const STRINGS = {
     NOTIFICATIONS: 'Notifications',
     PRIVACY_POLICY: 'Privacy Policy',
     TERMS: 'Terms of Use',
+    RESET_ONBOARDING: 'Reset Onboarding',
     DELETE_ACCOUNT: 'Delete All Data',
     DELETE_CONFIRM_TITLE: 'Delete All Data?',
     DELETE_CONFIRM_BODY: 'This will permanently delete all your sessions, progress, and preferences. This cannot be undone.',

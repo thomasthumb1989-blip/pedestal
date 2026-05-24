@@ -125,6 +125,25 @@ export default function SettingsScreen() {
     Linking.openURL(url);
   }
 
+  function handleResetOnboarding() {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Alert.alert(
+      'Reset Onboarding?',
+      'This will clear onboarding progress and show the first-launch flow again.',
+      [
+        { text: STRINGS.SETTINGS.CANCEL, style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: async () => {
+            await AsyncStorage.removeItem('@pedestal_onboarding_complete');
+            router.replace('/onboarding');
+          },
+        },
+      ],
+    );
+  }
+
   function handleDeleteAccount() {
     Alert.alert(
       STRINGS.SETTINGS.DELETE_CONFIRM_TITLE,
@@ -240,6 +259,14 @@ export default function SettingsScreen() {
             {STRINGS.SETTINGS.DANGER}
           </Text>
         </View>
+        <SettingsRow
+          icon="refresh-outline"
+          label={STRINGS.SETTINGS.RESET_ONBOARDING}
+          onPress={handleResetOnboarding}
+          destructive
+          colors={colors}
+        />
+        <View style={[styles.divider, { backgroundColor: colors.error + '20' }]} />
         <SettingsRow
           icon="trash-outline"
           label={STRINGS.SETTINGS.DELETE_ACCOUNT}
