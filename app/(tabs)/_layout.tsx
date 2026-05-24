@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import { Tabs, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
-import { Colors } from '@/constants/Colors';
+import { Colors, Spacing } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 
 const ONBOARDING_KEY = '@pedestal_onboarding_complete';
@@ -12,6 +14,7 @@ const ONBOARDING_KEY = '@pedestal_onboarding_complete';
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme];
+  const insets = useSafeAreaInsets();
   const [checkedOnboarding, setCheckedOnboarding] = useState(false);
 
   useEffect(() => {
@@ -34,6 +37,15 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
+          paddingBottom: Math.max(insets.bottom, Spacing.sm),
+          paddingTop: Spacing.xs,
+          height: 56 + Math.max(insets.bottom, Spacing.sm),
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '600',
+          fontFamily: Platform.select({ ios: 'System', android: 'sans-serif-medium' }),
+          marginTop: 2,
         },
         headerStyle: {
           backgroundColor: colors.background,
