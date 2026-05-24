@@ -256,16 +256,20 @@ export default function PracticeScreen() {
             style={({ pressed }) => [
               styles.recordButton,
               {
-                backgroundColor: isRecording ? colors.error : colors.primary,
+                backgroundColor: isRecording ? colors.error : 'transparent',
                 transform: [{ scale: pressed ? 0.95 : 1 }],
               },
             ]}
           >
-            <Ionicons
-              name={isRecording ? 'stop' : 'mic'}
-              size={32}
-              color="#FFFFFF"
-            />
+            {isRecording ? (
+              <Ionicons name="stop" size={32} color="#FFFFFF" />
+            ) : (
+              <Image
+                source={require('@/assets/images/icon.png')}
+                style={styles.recordButtonIcon}
+                contentFit="cover"
+              />
+            )}
           </Pressable>
         </Animated.View>
 
@@ -337,6 +341,12 @@ const styles = StyleSheet.create({
     borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  recordButtonIcon: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
   },
   tapText: {
     marginTop: Spacing.lg,
