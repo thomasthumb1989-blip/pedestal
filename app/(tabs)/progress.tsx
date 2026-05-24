@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -78,28 +78,54 @@ function StatCard({ label, value, valueColor, colors, accentColor, trend }: Stat
   );
 }
 
-// ── Mini clarity chart (pure RN views) ────────────
+// ── Clarity chart (pure RN absolute positioning) ──
+
+const CHART_HEIGHT = 160;
+const Y_LABELS = [0, 25, 50, 75, 100];
+const Y_LABEL_WIDTH = 28;
+const DOT_SIZE = 12;
+
+function formatChartDate(isoDate: string): string {
+  const d = new Date(isoDate);
+  return `${d.getDate()} ${d.toLocaleString('default', { month: 'short' })}`;
+}
 
 function ClarityChart({ sessions, colors }: { sessions: Session[]; colors: ColorTheme }) {
-  if (sessions.length < 2) {
+  const [chartWidth, setChartWidth] = useState(0);
+
+  // Single session — show dot + message
+  if (sessions.length === 1) {
+    const s = sessions[0];
     return (
       <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
         <Text style={[Typography.h3, { color: colors.text, marginBottom: Spacing.sm }]}>
           {STRINGS.PROGRESS.IMPROVEMENT}
         </Text>
-        <Text style={[Typography.body, { color: colors.textSecondary, textAlign: 'center', paddingVertical: Spacing.lg }]}>
-          {STRINGS.PROGRESS.CHART_MIN_SESSIONS}
-        </Text>
+        <View style={{ alignItems: 'center', paddingVertical: Spacing.lg }}>
+          <View style={{
+            width: DOT_SIZE + 4,
+            height: DOT_SIZE + 4,
+            borderRadius: (DOT_SIZE + 4) / 2,
+            backgroundColor: getScoreColor(s.clarityScore, colors),
+            marginBottom: Spacing.sm,
+          }} />
+          <Text style={[Typography.h2, { color: getScoreColor(s.clarityScore, colors) }]}>
+            {s.clarityScore}
+          </Text>
+          <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
+            {STRINGS.PROGRESS.CHART_MIN_SESSIONS}
+          </Text>
+        </View>
       </View>
     );
   }
 
+  // No sessions — shouldn't happen but guard
+  if (sessions.length === 0) return null;
+
+  // Chronological order (sessions come newest-first)
   const chronological = [...sessions].reverse();
-  const scores = chronological.map((s) => s.clarityScore);
-  const maxScore = Math.max(...scores, 100);
-  const minScore = Math.min(...scores, 0);
-  const range = Math.max(maxScore - minScore, 20);
-  const chartHeight = 120;
+  const plotWidth = chartWidth - Y_LABEL_WIDTH;
 
   return (
     <View style={[styles.chartCard, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
@@ -107,97 +133,157 @@ function ClarityChart({ sessions, colors }: { sessions: Session[]; colors: Color
         {STRINGS.PROGRESS.IMPROVEMENT}
       </Text>
 
-      <View style={[styles.chartArea, { height: chartHeight }]}>
-        {/* Gradient fill behind line */}
-        <View
-          style={{
-            position: 'absolute' as const,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: chartHeight * 0.6,
-            backgroundColor: colors.primary + '08',
-            opacity: 0.5,
-          }}
-        />
+      <View
+        style={{ flexDirection: 'row' }}
+        onLayout={(e) => setChartWidth(e.nativeEvent.layout.width)}
+      >
+        {/* Y-axis labels */}
+        <View style={{ width: Y_LABEL_WIDTH, height: CHART_HEIGHT, justifyContent: 'space-between' }}>
+          {[...Y_LABELS].reverse().map((val) => (
+            <Text key={val} style={[Typography.caption, { color: colors.textTertiary, fontSize: 10, textAlign: 'right' }]}>
+              {val}
+            </Text>
+          ))}
+        </View>
 
-        {/* Grid lines */}
-        {[0, 0.5, 1].map((pct) => (
-          <View
-            key={pct}
-            style={[
-              styles.gridLine,
-              {
-                backgroundColor: colors.border,
-                bottom: pct * chartHeight,
-              },
-            ]}
-          />
-        ))}
+        {/* Chart area */}
+        {plotWidth > 0 && (
+          <View style={{ flex: 1, height: CHART_HEIGHT, marginLeft: Spacing.xs }}>
+            {/* Grid lines at 0, 25, 50, 75, 100 */}
+            {Y_LABELS.map((val) => {
+              const bottomPx = (val / 100) * (CHART_HEIGHT - DOT_SIZE) + DOT_SIZE / 2;
+              return (
+                <View
+                  key={`grid-${val}`}
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    bottom: bottomPx,
+                    height: StyleSheet.hairlineWidth,
+                    backgroundColor: colors.border,
+                  }}
+                />
+              );
+            })}
 
-        {/* Data points + connecting lines */}
-        {scores.map((score, i) => {
-          const x = scores.length === 1 ? 0.5 : i / (scores.length - 1);
-          const y = (score - minScore) / range;
-          const dotLeftPct = x * 100;
-          const dotBottom = y * (chartHeight - 12);
+            {/* Gradient fill bands (simulate gradient with layered Views) */}
+            {(() => {
+              const bands = 4;
+              const bandHeight = CHART_HEIGHT / bands;
+              return Array.from({ length: bands }).map((_, i) => (
+                <View
+                  key={`fill-${i}`}
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    height: bandHeight * (bands - i),
+                    backgroundColor: colors.primary,
+                    opacity: 0.02 + i * 0.01,
+                  }}
+                />
+              ));
+            })()}
 
-          return (
-            <View key={i}>
-              {/* Line to next point */}
-              {i < scores.length - 1 && (() => {
-                const nextY = (scores[i + 1] - minScore) / range;
-                const nextX = (i + 1) / (scores.length - 1);
-                const x1 = x * 100;
-                const x2 = nextX * 100;
-                const y1 = y * (chartHeight - 12) + 6;
-                const y2 = nextY * (chartHeight - 12) + 6;
-                const dx = (x2 - x1);
-                const dy = (y2 - y1);
-                const lineLen = Math.sqrt(dx * dx + dy * dy);
-                const angle = Math.atan2(-dy, dx) * (180 / Math.PI);
+            {/* Connecting lines between dots */}
+            {chronological.map((s, i) => {
+              if (i >= chronological.length - 1) return null;
+              const next = chronological[i + 1];
 
-                return (
-                  <View
-                    style={{
-                      position: 'absolute' as const,
-                      left: `${x1}%` as any,
-                      bottom: y1,
-                      width: `${lineLen}%` as any,
-                      height: 2,
-                      backgroundColor: colors.primary,
-                      transformOrigin: 'left center',
-                      transform: [{ rotate: `${angle}deg` }],
-                    }}
-                  />
-                );
-              })()}
+              const x1 = (i / (chronological.length - 1)) * (plotWidth - DOT_SIZE) + DOT_SIZE / 2;
+              const y1 = (s.clarityScore / 100) * (CHART_HEIGHT - DOT_SIZE) + DOT_SIZE / 2;
+              const x2 = ((i + 1) / (chronological.length - 1)) * (plotWidth - DOT_SIZE) + DOT_SIZE / 2;
+              const y2 = (next.clarityScore / 100) * (CHART_HEIGHT - DOT_SIZE) + DOT_SIZE / 2;
 
-              {/* Dot */}
-              <View
-                style={[
-                  styles.chartDot,
-                  {
-                    left: `${dotLeftPct}%` as any,
-                    bottom: dotBottom,
-                    backgroundColor: getScoreColor(score, colors),
+              const dx = x2 - x1;
+              const dy = y2 - y1;
+              const length = Math.sqrt(dx * dx + dy * dy);
+              const angle = Math.atan2(-dy, dx) * (180 / Math.PI);
+
+              return (
+                <View
+                  key={`line-${i}`}
+                  style={{
+                    position: 'absolute',
+                    left: x1,
+                    bottom: y1 - 1,
+                    width: length,
+                    height: 2.5,
+                    backgroundColor: colors.primary,
+                    transform: [{ rotate: `${angle}deg` }],
+                    transformOrigin: 'left center',
+                    borderRadius: 1,
+                  }}
+                />
+              );
+            })}
+
+            {/* Data dots */}
+            {chronological.map((s, i) => {
+              const x = (i / (chronological.length - 1)) * (plotWidth - DOT_SIZE);
+              const y = (s.clarityScore / 100) * (CHART_HEIGHT - DOT_SIZE);
+
+              return (
+                <View
+                  key={`dot-${i}`}
+                  style={{
+                    position: 'absolute',
+                    left: x,
+                    bottom: y,
+                    width: DOT_SIZE,
+                    height: DOT_SIZE,
+                    borderRadius: DOT_SIZE / 2,
+                    backgroundColor: getScoreColor(s.clarityScore, colors),
+                    borderWidth: 2,
                     borderColor: colors.surfaceElevated,
-                  },
-                ]}
-              />
-            </View>
-          );
-        })}
+                  }}
+                />
+              );
+            })}
+
+            {/* Score labels on dots (only first and last to avoid clutter) */}
+            {chronological.length >= 2 && [0, chronological.length - 1].map((idx) => {
+              const s = chronological[idx];
+              const x = (idx / (chronological.length - 1)) * (plotWidth - DOT_SIZE);
+              const y = (s.clarityScore / 100) * (CHART_HEIGHT - DOT_SIZE);
+              const isTop = s.clarityScore > 50;
+
+              return (
+                <Text
+                  key={`label-${idx}`}
+                  style={{
+                    position: 'absolute',
+                    left: x - 4,
+                    bottom: isTop ? y + DOT_SIZE + 2 : y - 16,
+                    fontSize: 11,
+                    fontWeight: '700',
+                    color: getScoreColor(s.clarityScore, colors),
+                  }}
+                >
+                  {s.clarityScore}
+                </Text>
+              );
+            })}
+          </View>
+        )}
       </View>
 
-      {/* Score labels below chart */}
-      <View style={styles.chartLabels}>
-        <Text style={[Typography.caption, { color: colors.textTertiary }]}>
-          {scores[0]}
-        </Text>
-        <Text style={[Typography.caption, { color: colors.textTertiary }]}>
-          {scores[scores.length - 1]}
-        </Text>
+      {/* X-axis date labels */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.xs, paddingLeft: Y_LABEL_WIDTH + Spacing.xs }}>
+        {chronological.length <= 6
+          ? chronological.map((s, i) => (
+              <Text key={`date-${i}`} style={[Typography.caption, { color: colors.textTertiary, fontSize: 10 }]}>
+                {formatChartDate(s.date)}
+              </Text>
+            ))
+          : [0, Math.floor(chronological.length / 2), chronological.length - 1].map((idx) => (
+              <Text key={`date-${idx}`} style={[Typography.caption, { color: colors.textTertiary, fontSize: 10 }]}>
+                {formatChartDate(chronological[idx].date)}
+              </Text>
+            ))
+        }
       </View>
     </View>
   );
@@ -372,12 +458,8 @@ export default function ProgressScreen() {
       contentContainerStyle={{ paddingBottom: insets.bottom + Spacing.lg }}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={[Typography.h1, styles.title, { color: colors.text }]}>
-        {STRINGS.PROGRESS.TITLE}
-      </Text>
-
       {/* Summary cards - 2x2 grid */}
-      <View style={styles.statsGrid}>
+      <View style={[styles.statsGrid, { marginTop: Spacing.md }]}>
         <Animated.View style={[styles.statAnimWrapper, { opacity: statAnims[0], transform: [{ translateY: statTranslateY[0] }] }]}>
           <StatCard
             label={STRINGS.PROGRESS.TOTAL_SESSIONS}
