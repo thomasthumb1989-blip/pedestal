@@ -13,6 +13,8 @@ export type Session = {
   fillerPercentage: number;
   totalWords: number;
   transcript: string;
+  impromptu?: boolean;
+  topic?: string;
 };
 
 export function useSessionHistory() {

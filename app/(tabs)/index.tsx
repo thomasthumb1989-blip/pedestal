@@ -6,7 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 
 import { useColorScheme } from '@/components/useColorScheme';
-import { Colors, Spacing, Typography } from '@/constants/Colors';
+import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 import { transcribeAudio } from '@/src/services/transcription';
 import { analyzeSpeech } from '@/src/services/speechAnalysis';
@@ -202,6 +202,37 @@ export default function PracticeScreen() {
         {STRINGS.APP_NAME}
       </Text>
 
+      {!isRecording && (
+        <Pressable
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push('/impromptu');
+          }}
+          style={({ pressed }) => [
+            styles.impromptuCard,
+            {
+              backgroundColor: colors.surfaceElevated,
+              borderColor: colors.accent,
+              opacity: pressed ? 0.7 : 1,
+            },
+            Shadows.card,
+          ]}
+        >
+          <View style={styles.impromptuContent}>
+            <Ionicons name="shuffle-outline" size={24} color={colors.accent} />
+            <View style={styles.impromptuText}>
+              <Text style={[Typography.h3, { color: colors.text }]}>
+                {STRINGS.PRACTICE.IMPROMPTU_TITLE}
+              </Text>
+              <Text style={[Typography.caption, { color: colors.textSecondary }]}>
+                {STRINGS.PRACTICE.IMPROMPTU_BODY}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+          </View>
+        </Pressable>
+      )}
+
       <View style={styles.recordArea}>
         {isRecording && (
           <Text style={[Typography.h1, { color: colors.text, marginBottom: Spacing.xl }]}>
@@ -259,6 +290,21 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  impromptuCard: {
+    borderRadius: BorderRadius.md,
+    borderWidth: 1.5,
+    padding: Spacing.md,
+    marginTop: Spacing.md,
+  },
+  impromptuContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  impromptuText: {
+    flex: 1,
+    marginLeft: Spacing.md,
+    marginRight: Spacing.sm,
   },
   recordButton: {
     width: 72,

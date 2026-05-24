@@ -27,6 +27,20 @@ export const STRINGS = {
     TAP_TO_STOP: 'Tap to stop',
     MIN_DURATION: 'Record at least 10 seconds',
     ANALYZING: 'Analyzing your speech...',
+    IMPROMPTU_TITLE: 'Impromptu Mode',
+    IMPROMPTU_BODY: 'Get a random topic and speak with no preparation',
+  },
+
+  IMPROMPTU: {
+    TITLE: 'Impromptu Mode',
+    YOUR_TOPIC: 'Your Topic',
+    THINK_TIME: 'Think Time',
+    RECORDING_STARTS: 'Recording starts automatically',
+    NEW_TOPIC: 'New Topic',
+    RECORDING: 'Speaking...',
+    TAP_TO_STOP: 'Tap to finish',
+    ANALYZING: 'Analyzing your speech...',
+    MIN_DURATION: 'Speak for at least 10 seconds',
   },
 
   RESULTS: {
