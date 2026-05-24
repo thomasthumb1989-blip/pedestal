@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AIConsentModal } from '@/components/AIConsentModal';
+import { PaywallGate } from '@/components/PaywallGate';
 import { HeaderLogo } from '@/components/HeaderLogo';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
@@ -16,6 +17,7 @@ import { transcribeAudio } from '@/src/services/transcription';
 import { analyzeSpeech } from '@/src/services/speechAnalysis';
 import { useSessionHistory } from '@/src/hooks/useSessionHistory';
 import { useAIConsent } from '@/src/hooks/useAIConsent';
+import { useSubscription } from '@/src/hooks/useSubscription';
 
 const THINK_TIME = 10;
 const MIN_DURATION = 5;
@@ -36,6 +38,7 @@ export default function ImpromptuScreen() {
   const router = useRouter();
   const { saveSession } = useSessionHistory();
   const { requireConsent, showModal, grantConsent, setShowModal } = useAIConsent();
+  const { isSubscribed, isLoading: subLoading } = useSubscription();
 
   const [topic, setTopic] = useState<Topic>(() => getRandomTopic());
   const [phase, setPhase] = useState<Phase>('topic');
@@ -217,6 +220,11 @@ export default function ImpromptuScreen() {
       setError(STRINGS.ERRORS.TRANSCRIPTION_FAILED);
       setPhase('topic');
     }
+  }
+
+  // ── Paywall Gate ──
+  if (!subLoading && !isSubscribed) {
+    return <PaywallGate />;
   }
 
   // ── Analyzing ──

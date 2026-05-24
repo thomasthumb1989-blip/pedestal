@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AIConsentModal } from '@/components/AIConsentModal';
+import { PaywallGate } from '@/components/PaywallGate';
 import { HeaderLogo } from '@/components/HeaderLogo';
 import { Colors, ColorTheme, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
@@ -15,6 +16,7 @@ import { getDrillById, Drill } from '@/src/constants/drills';
 import { transcribeAudio } from '@/src/services/transcription';
 import { analyzeSpeech, SpeechMetrics } from '@/src/services/speechAnalysis';
 import { useAIConsent } from '@/src/hooks/useAIConsent';
+import { useSubscription } from '@/src/hooks/useSubscription';
 
 const MIN_DURATION = 5;
 const MAX_DURATION = 120;
@@ -72,6 +74,7 @@ export default function DrillScreen() {
 
   const drill = getDrillById(drillId ?? '');
   const { requireConsent, showModal, grantConsent, setShowModal } = useAIConsent();
+  const { isSubscribed, isLoading: subLoading } = useSubscription();
 
   const [isRecording, setIsRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -103,6 +106,10 @@ export default function DrillScreen() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
+
+  if (!subLoading && !isSubscribed) {
+    return <PaywallGate />;
+  }
 
   if (!drill) {
     return (

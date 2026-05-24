@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,6 +10,8 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { HeaderLogo } from '@/components/HeaderLogo';
 import { Colors, ColorTheme, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
+
+const SUBSCRIPTION_KEY = '@pedestal_subscribed';
 
 type PlanId = 'monthly' | 'annual' | 'lifetime';
 
@@ -147,8 +150,9 @@ export default function PaywallScreen() {
       // const pkg = offerings.current?.availablePackages.find(p => p.identifier === selectedPlan);
       // if (pkg) await Purchases.purchasePackage(pkg);
 
-      // Placeholder: simulate success for now
+      // Placeholder: simulate success — set subscription flag
       await new Promise((resolve) => setTimeout(resolve, 1000));
+      await AsyncStorage.setItem(SUBSCRIPTION_KEY, 'true');
       router.replace('/(tabs)');
     } catch (e: any) {
       if (e?.userCancelled) {
@@ -197,8 +201,8 @@ export default function PaywallScreen() {
     >
       {/* Top bar */}
       <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
-        <Pressable onPress={handleClose} hitSlop={16} style={styles.closeButton}>
-          <Ionicons name="close" size={28} color={colors.textSecondary} />
+        <Pressable onPress={handleClose} hitSlop={12} style={styles.closeButton}>
+          <Ionicons name="close" size={18} color={colors.textTertiary} />
         </Pressable>
         <HeaderLogo size={32} />
       </View>
@@ -313,8 +317,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
   },
   closeButton: {
-    width: 44,
-    height: 44,
+    width: 28,
+    height: 28,
     alignItems: 'center',
     justifyContent: 'center',
   },

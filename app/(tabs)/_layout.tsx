@@ -11,23 +11,40 @@ import { Colors, Spacing } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 
 const ONBOARDING_KEY = '@pedestal_onboarding_complete';
+const SUBSCRIPTION_KEY = '@pedestal_subscribed';
+
+// Module-level flag: resets on app restart, persists across remounts within session
+let _paywallShownThisSession = false;
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
-  const [checkedOnboarding, setCheckedOnboarding] = useState(false);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(ONBOARDING_KEY).then((value) => {
-      if (value !== 'true') {
+    async function init() {
+      const onboarded = await AsyncStorage.getItem(ONBOARDING_KEY);
+      if (onboarded !== 'true') {
         router.replace('/onboarding');
+        setReady(true);
+        return;
       }
-      setCheckedOnboarding(true);
-    });
+
+      const subscribed = await AsyncStorage.getItem(SUBSCRIPTION_KEY);
+      if (subscribed !== 'true' && !_paywallShownThisSession) {
+        _paywallShownThisSession = true;
+        router.replace('/paywall');
+        setReady(true);
+        return;
+      }
+
+      setReady(true);
+    }
+    init();
   }, []);
 
-  if (!checkedOnboarding) return null;
+  if (!ready) return null;
 
   return (
     <Tabs

@@ -8,12 +8,14 @@ import { useRouter } from 'expo-router';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AIConsentModal } from '@/components/AIConsentModal';
+import { PaywallGate } from '@/components/PaywallGate';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 import { transcribeAudio } from '@/src/services/transcription';
 import { analyzeSpeech } from '@/src/services/speechAnalysis';
 import { useSessionHistory } from '@/src/hooks/useSessionHistory';
 import { useAIConsent } from '@/src/hooks/useAIConsent';
+import { useSubscription } from '@/src/hooks/useSubscription';
 
 const MIN_DURATION = 5;
 const MAX_DURATION = 300;
@@ -31,6 +33,7 @@ export default function PracticeScreen() {
   const router = useRouter();
   const { saveSession } = useSessionHistory();
   const { requireConsent, showModal, grantConsent, setShowModal } = useAIConsent();
+  const { isSubscribed, isLoading: subLoading } = useSubscription();
 
   const [isRecording, setIsRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -299,6 +302,10 @@ export default function PracticeScreen() {
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   });
+
+  if (!subLoading && !isSubscribed) {
+    return <PaywallGate />;
+  }
 
   if (isAnalyzing) {
     return (

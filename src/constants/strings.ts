@@ -155,6 +155,9 @@ export const STRINGS = {
     RESTORING: 'Restoring purchases...',
     RESTORED: 'Purchases restored!',
     NO_PURCHASES: 'No previous purchases found.',
+    GATE_TITLE: 'Start your free trial to begin',
+    GATE_BODY: 'Unlock unlimited recordings, AI coaching, and drills with a free trial.',
+    GATE_CTA: 'Start Free Trial',
   },
 
   ERRORS: {
