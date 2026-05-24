@@ -1,4 +1,5 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
@@ -51,12 +52,25 @@ type StatProps = {
   value: string;
   valueColor?: string;
   colors: ColorTheme;
+  accentColor?: string;
+  trend?: 'up' | 'down' | 'none';
 };
 
-function StatCard({ label, value, valueColor, colors }: StatProps) {
+function StatCard({ label, value, valueColor, colors, accentColor, trend }: StatProps) {
   return (
-    <View style={[styles.statCard, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
-      <Text style={[Typography.h2, { color: valueColor ?? colors.text }]}>{value}</Text>
+    <View style={[styles.statCard, { backgroundColor: colors.surfaceElevated, overflow: 'hidden' as const }, Shadows.card]}>
+      {accentColor && (
+        <View style={[styles.accentBar, { backgroundColor: accentColor }]} />
+      )}
+      <View style={styles.statValueRow}>
+        <Text style={[Typography.h2, { color: valueColor ?? colors.text }]}>{value}</Text>
+        {trend === 'up' && (
+          <Ionicons name="arrow-up" size={12} color={colors.success} style={{ marginLeft: 4 }} />
+        )}
+        {trend === 'down' && (
+          <Ionicons name="arrow-down" size={12} color={colors.error} style={{ marginLeft: 4 }} />
+        )}
+      </View>
       <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: 2 }]}>
         {label}
       </Text>
@@ -94,6 +108,19 @@ function ClarityChart({ sessions, colors }: { sessions: Session[]; colors: Color
       </Text>
 
       <View style={[styles.chartArea, { height: chartHeight }]}>
+        {/* Gradient fill behind line */}
+        <View
+          style={{
+            position: 'absolute' as const,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: chartHeight * 0.6,
+            backgroundColor: colors.primary + '08',
+            opacity: 0.5,
+          }}
+        />
+
         {/* Grid lines */}
         {[0, 0.5, 1].map((pct) => (
           <View
@@ -198,9 +225,17 @@ function SessionRow({ session, colors, onPress }: SessionRowProps) {
       ]}
     >
       <View style={styles.sessionLeft}>
-        <Text style={[Typography.body, { color: colors.text, fontWeight: '600' }]}>
-          {formatSessionDate(session.date)}
-        </Text>
+        <View style={styles.sessionDateRow}>
+          <View
+            style={[
+              styles.sessionDot,
+              { backgroundColor: getScoreColor(session.clarityScore, colors) },
+            ]}
+          />
+          <Text style={[Typography.body, { color: colors.text, fontWeight: '600' }]}>
+            {formatSessionDate(session.date)}
+          </Text>
+        </View>
         <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: 2 }]}>
           {formatDuration(session.durationSeconds)} &middot; {session.wordsPerMinute} WPM &middot; {session.fillerCount} fillers
         </Text>
@@ -230,6 +265,55 @@ export default function ProgressScreen() {
   const router = useRouter();
   const { sessions, loading } = useSessionHistory();
 
+  // Staggered fade-in for stat cards
+  const statAnims = [
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+    useRef(new Animated.Value(0)).current,
+  ];
+  const statTranslateY = [
+    useRef(new Animated.Value(16)).current,
+    useRef(new Animated.Value(16)).current,
+    useRef(new Animated.Value(16)).current,
+    useRef(new Animated.Value(16)).current,
+  ];
+
+  // Empty state fade-in
+  const emptyFadeAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (sessions.length === 0 && !loading) {
+      Animated.timing(emptyFadeAnim, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }).start();
+    }
+  }, [sessions.length, loading]);
+
+  useEffect(() => {
+    if (sessions.length > 0) {
+      const animations = statAnims.map((anim, i) =>
+        Animated.parallel([
+          Animated.timing(anim, {
+            toValue: 1,
+            duration: 400,
+            delay: i * 150,
+            useNativeDriver: true,
+          }),
+          Animated.timing(statTranslateY[i], {
+            toValue: 0,
+            duration: 400,
+            delay: i * 150,
+            useNativeDriver: true,
+          }),
+        ]),
+      );
+      Animated.parallel(animations).start();
+    }
+  }, [sessions.length > 0]);
+
   if (loading) {
     return (
       <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
@@ -241,7 +325,7 @@ export default function ProgressScreen() {
   if (sessions.length === 0) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.emptyState}>
+        <Animated.View style={[styles.emptyState, { opacity: emptyFadeAnim }]}>
           <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
             <Ionicons name="bar-chart-outline" size={36} color={colors.primary} />
           </View>
@@ -251,7 +335,7 @@ export default function ProgressScreen() {
           <Text style={[Typography.body, styles.emptyBody, { color: colors.textSecondary }]}>
             {STRINGS.PROGRESS.EMPTY_BODY}
           </Text>
-        </View>
+        </Animated.View>
       </View>
     );
   }
@@ -294,31 +378,70 @@ export default function ProgressScreen() {
 
       {/* Summary cards - 2x2 grid */}
       <View style={styles.statsGrid}>
-        <StatCard
-          label={STRINGS.PROGRESS.TOTAL_SESSIONS}
-          value={totalSessions.toString()}
-          colors={colors}
-        />
-        <StatCard
-          label={STRINGS.PROGRESS.AVG_CLARITY}
-          value={avgClarity.toString()}
-          valueColor={getScoreColor(avgClarity, colors)}
-          colors={colors}
-        />
-        <StatCard
-          label={STRINGS.PROGRESS.AVG_WPM}
-          value={avgWpm.toString()}
-          colors={colors}
-        />
-        <StatCard
-          label={STRINGS.PROGRESS.TOTAL_TIME}
-          value={formatPracticeTime(totalTime)}
-          colors={colors}
-        />
+        <Animated.View style={[styles.statAnimWrapper, { opacity: statAnims[0], transform: [{ translateY: statTranslateY[0] }] }]}>
+          <StatCard
+            label={STRINGS.PROGRESS.TOTAL_SESSIONS}
+            value={totalSessions.toString()}
+            colors={colors}
+            accentColor={colors.primary}
+          />
+        </Animated.View>
+        <Animated.View style={[styles.statAnimWrapper, { opacity: statAnims[1], transform: [{ translateY: statTranslateY[1] }] }]}>
+          <StatCard
+            label={STRINGS.PROGRESS.AVG_CLARITY}
+            value={avgClarity.toString()}
+            valueColor={getScoreColor(avgClarity, colors)}
+            colors={colors}
+            accentColor={getScoreColor(avgClarity, colors)}
+            trend={avgClarity > 70 ? 'up' : avgClarity < 50 ? 'down' : 'none'}
+          />
+        </Animated.View>
+        <Animated.View style={[styles.statAnimWrapper, { opacity: statAnims[2], transform: [{ translateY: statTranslateY[2] }] }]}>
+          <StatCard
+            label={STRINGS.PROGRESS.AVG_WPM}
+            value={avgWpm.toString()}
+            colors={colors}
+            accentColor={colors.accent}
+          />
+        </Animated.View>
+        <Animated.View style={[styles.statAnimWrapper, { opacity: statAnims[3], transform: [{ translateY: statTranslateY[3] }] }]}>
+          <StatCard
+            label={STRINGS.PROGRESS.TOTAL_TIME}
+            value={formatPracticeTime(totalTime)}
+            colors={colors}
+            accentColor={colors.primary}
+          />
+        </Animated.View>
       </View>
 
       {/* Clarity chart */}
       <ClarityChart sessions={recentSessions} colors={colors} />
+
+      {/* Motivational message */}
+      {sessions.length >= 2 && (() => {
+        const chronological = [...recentSessions].reverse();
+        const latestClarity = chronological[chronological.length - 1]?.clarityScore ?? 0;
+        const prevClarity = chronological[chronological.length - 2]?.clarityScore ?? 0;
+
+        let message = 'Every session makes you better';
+        let messageColor: string = colors.textSecondary;
+
+        if (sessions.length >= 5 && avgClarity >= 80) {
+          message = 'Exceptional clarity! You\'re in the top tier \u{1F3C6}';
+          messageColor = colors.accent;
+        } else if (latestClarity > prevClarity) {
+          message = 'You\'re improving! Keep it up \u{1F3AF}';
+          messageColor = colors.success;
+        }
+
+        return (
+          <View style={[styles.motivationalCard, { backgroundColor: colors.primaryLight }]}>
+            <Text style={[Typography.body, { color: messageColor, textAlign: 'center' }]}>
+              {message}
+            </Text>
+          </View>
+        );
+      })()}
 
       {/* Recent sessions list */}
       <Text style={[Typography.h3, styles.sectionTitle, { color: colors.text }]}>
@@ -378,8 +501,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   statCard: {
-    width: '48%',
-    flexGrow: 1,
+    flex: 1,
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
     alignItems: 'center',
@@ -431,5 +553,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.xs,
+  },
+  accentBar: {
+    position: 'absolute',
+    left: 0,
+    top: 8,
+    bottom: 8,
+    width: 3,
+    borderRadius: 2,
+  },
+  statValueRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  statAnimWrapper: {
+    width: '48%',
+    flexGrow: 1,
+  },
+  motivationalCard: {
+    marginTop: Spacing.sm,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+  },
+  sessionDateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  sessionDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginRight: 8,
   },
 });

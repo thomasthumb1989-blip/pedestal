@@ -40,6 +40,17 @@ export default function PracticeScreen() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
+  // Recording pulse rings
+  const ring1Anim = useRef(new Animated.Value(0)).current;
+  const ring2Anim = useRef(new Animated.Value(0)).current;
+  const ring3Anim = useRef(new Animated.Value(0)).current;
+
+  // Analyzing spin
+  const spinAnim = useRef(new Animated.Value(0)).current;
+
+  // Impromptu card scale
+  const cardScale = useRef(new Animated.Value(1)).current;
+
   useEffect(() => {
     if (isRecording) {
       const anim = Animated.loop(
@@ -57,11 +68,59 @@ export default function PracticeScreen() {
         ]),
       );
       anim.start();
-      return () => anim.stop();
+
+      // Pulse rings
+      const ringAnims = [ring1Anim, ring2Anim, ring3Anim];
+      const loops = ringAnims.map((ring, i) => {
+        const loop = Animated.loop(
+          Animated.sequence([
+            Animated.delay(i * 400),
+            Animated.parallel([
+              Animated.timing(ring, {
+                toValue: 1,
+                duration: 1800,
+                useNativeDriver: true,
+              }),
+            ]),
+            Animated.timing(ring, {
+              toValue: 0,
+              duration: 0,
+              useNativeDriver: true,
+            }),
+          ]),
+        );
+        loop.start();
+        return loop;
+      });
+
+      return () => {
+        anim.stop();
+        loops.forEach((l) => l.stop());
+        ring1Anim.setValue(0);
+        ring2Anim.setValue(0);
+        ring3Anim.setValue(0);
+      };
     } else {
       pulseAnim.setValue(1);
     }
-  }, [isRecording, pulseAnim]);
+  }, [isRecording, pulseAnim, ring1Anim, ring2Anim, ring3Anim]);
+
+  useEffect(() => {
+    if (isAnalyzing) {
+      const spin = Animated.loop(
+        Animated.timing(spinAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      );
+      spin.start();
+      return () => {
+        spin.stop();
+        spinAnim.setValue(0);
+      };
+    }
+  }, [isAnalyzing, spinAnim]);
 
   useEffect(() => {
     return () => {
@@ -190,15 +249,57 @@ export default function PracticeScreen() {
     }
   }
 
+  const spinRotate = spinAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
   if (isAnalyzing) {
     return (
       <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
-        <Ionicons name="sparkles" size={48} color={colors.primary} />
+        <Animated.View style={{ transform: [{ rotate: spinRotate }] }}>
+          <Ionicons name="sparkles" size={48} color={colors.primary} />
+        </Animated.View>
         <Text style={[Typography.h3, { color: colors.text, marginTop: Spacing.lg }]}>
           {STRINGS.PRACTICE.ANALYZING}
         </Text>
       </View>
     );
+  }
+
+  function renderPulseRings() {
+    const rings = [
+      { anim: ring1Anim, size: 120, opacity: 0.3 },
+      { anim: ring2Anim, size: 150, opacity: 0.2 },
+      { anim: ring3Anim, size: 180, opacity: 0.1 },
+    ];
+
+    return rings.map((ring, i) => {
+      const scale = ring.anim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [1, 1.3],
+      });
+      const animOpacity = ring.anim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [1, 0],
+      });
+
+      return (
+        <Animated.View
+          key={i}
+          style={{
+            position: 'absolute',
+            width: ring.size,
+            height: ring.size,
+            borderRadius: ring.size / 2,
+            borderWidth: 2,
+            borderColor: colors.error,
+            opacity: animOpacity,
+            transform: [{ scale }],
+          }}
+        />
+      );
+    });
   }
 
   return (
@@ -209,64 +310,107 @@ export default function PracticeScreen() {
 
       {!isRecording && (
         <Pressable
+          onPressIn={() => {
+            Animated.timing(cardScale, {
+              toValue: 0.97,
+              duration: 100,
+              useNativeDriver: true,
+            }).start();
+          }}
+          onPressOut={() => {
+            Animated.timing(cardScale, {
+              toValue: 1,
+              duration: 100,
+              useNativeDriver: true,
+            }).start();
+          }}
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             router.push('/impromptu');
           }}
-          style={({ pressed }) => [
-            styles.impromptuCard,
-            {
-              backgroundColor: colors.surfaceElevated,
-              borderColor: colors.accent,
-              opacity: pressed ? 0.7 : 1,
-            },
-            Shadows.card,
-          ]}
         >
-          <View style={styles.impromptuContent}>
-            <Ionicons name="shuffle-outline" size={24} color={colors.accent} />
-            <View style={styles.impromptuText}>
-              <Text style={[Typography.h3, { color: colors.text }]}>
-                {STRINGS.PRACTICE.IMPROMPTU_TITLE}
-              </Text>
-              <Text style={[Typography.caption, { color: colors.textSecondary }]}>
-                {STRINGS.PRACTICE.IMPROMPTU_BODY}
-              </Text>
+          <Animated.View
+            style={[
+              styles.impromptuCard,
+              {
+                backgroundColor: colors.surfaceElevated,
+                borderColor: colors.accent,
+                transform: [{ scale: cardScale }],
+              },
+              Shadows.card,
+            ]}
+          >
+            <View style={styles.impromptuContent}>
+              <Ionicons name="flash-outline" size={24} color={colors.accent} />
+              <View style={styles.impromptuText}>
+                <Text style={[Typography.h3, { color: colors.text }]}>
+                  {STRINGS.PRACTICE.IMPROMPTU_TITLE}
+                </Text>
+                <Text style={[Typography.caption, { color: colors.textSecondary }]}>
+                  {STRINGS.PRACTICE.IMPROMPTU_BODY}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
             </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
-          </View>
+          </Animated.View>
         </Pressable>
       )}
 
       <View style={styles.recordArea}>
         {isRecording && (
-          <Text style={[Typography.h1, { color: colors.text, marginBottom: Spacing.xl }]}>
+          <Text
+            style={{
+              color: colors.text,
+              marginBottom: Spacing.xl,
+              fontSize: 36,
+              fontWeight: '700',
+            }}
+          >
             {formatTime(elapsed)}
           </Text>
         )}
 
-        <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
-          <Pressable
-            onPress={handleRecordPress}
-            style={({ pressed }) => [
-              styles.recordButton,
-              {
-                backgroundColor: isRecording ? colors.error : 'transparent',
-                transform: [{ scale: pressed ? 0.95 : 1 }],
-              },
+        <View style={styles.recordButtonWrapper}>
+          {/* Radial glow rings (always visible behind button) */}
+          <View
+            style={[
+              styles.glowRingOuter,
+              { backgroundColor: colors.primary, opacity: 0.04 },
             ]}
-          >
-            {isRecording ? (
-              <Ionicons name="stop" size={32} color="#FFFFFF" />
-            ) : (
-              <Image
-                source={require('@/assets/images/icon.png')}
-                style={styles.recordButtonIcon}
-                contentFit="cover"
-              />
-            )}
-          </Pressable>
-        </Animated.View>
+          />
+          <View
+            style={[
+              styles.glowRingInner,
+              { backgroundColor: colors.primary, opacity: 0.08 },
+            ]}
+          />
+
+          {/* Recording pulse rings */}
+          {isRecording && renderPulseRings()}
+
+          <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+            <Pressable
+              onPress={handleRecordPress}
+              style={({ pressed }) => [
+                styles.recordButton,
+                {
+                  backgroundColor: isRecording ? colors.error : 'transparent',
+                  transform: [{ scale: pressed ? 0.95 : 1 }],
+                },
+              ]}
+            >
+              {isRecording ? (
+                <Ionicons name="stop" size={36} color="#FFFFFF" />
+              ) : (
+                <Image
+                  source={require('@/assets/images/icon.png')}
+                  style={styles.recordButtonIcon}
+                  contentFit="cover"
+                />
+              )}
+            </Pressable>
+          </Animated.View>
+        </View>
 
         <Text style={[Typography.body, styles.tapText, { color: colors.textSecondary }]}>
           {isRecording ? STRINGS.PRACTICE.TAP_TO_STOP : STRINGS.PRACTICE.TAP_TO_START}
@@ -323,18 +467,36 @@ const styles = StyleSheet.create({
     marginLeft: Spacing.md,
     marginRight: Spacing.sm,
   },
+  recordButtonWrapper: {
+    width: 200,
+    height: 200,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  glowRingOuter: {
+    position: 'absolute',
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+  },
+  glowRingInner: {
+    position: 'absolute',
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+  },
   recordButton: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
   recordButtonIcon: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
   },
   tapText: {
     marginTop: Spacing.lg,

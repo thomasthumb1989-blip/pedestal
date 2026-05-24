@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
@@ -17,7 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { HeaderLogo } from '@/components/HeaderLogo';
-import { Colors, Spacing, BorderRadius, Typography } from '@/constants/Colors';
+import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 
 const { width } = Dimensions.get('window');
@@ -54,6 +54,77 @@ export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
+
+  const iconFade = useRef(new Animated.Value(0)).current;
+  const titleFade = useRef(new Animated.Value(0)).current;
+  const bodyFade = useRef(new Animated.Value(0)).current;
+
+  const iconTranslateY = useRef(new Animated.Value(20)).current;
+  const titleTranslateY = useRef(new Animated.Value(20)).current;
+  const bodyTranslateY = useRef(new Animated.Value(20)).current;
+
+  const dotWidths = useRef(
+    slides.map((_, i) => new Animated.Value(i === 0 ? 24 : 8))
+  ).current;
+
+  useEffect(() => {
+    iconFade.setValue(0);
+    titleFade.setValue(0);
+    bodyFade.setValue(0);
+    iconTranslateY.setValue(20);
+    titleTranslateY.setValue(20);
+    bodyTranslateY.setValue(20);
+
+    Animated.stagger(150, [
+      Animated.parallel([
+        Animated.timing(iconFade, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(iconTranslateY, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.parallel([
+        Animated.timing(titleFade, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(titleTranslateY, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.parallel([
+        Animated.timing(bodyFade, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(bodyTranslateY, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start();
+  }, [currentIndex]);
+
+  useEffect(() => {
+    const animations = dotWidths.map((dotWidth, index) =>
+      Animated.timing(dotWidth, {
+        toValue: index === currentIndex ? 24 : 8,
+        duration: 300,
+        useNativeDriver: false,
+      })
+    );
+    Animated.parallel(animations).start();
+  }, [currentIndex]);
 
   const onViewableItemsChanged = useRef(
     ({ viewableItems }: { viewableItems: ViewToken[] }) => {
@@ -124,15 +195,41 @@ export default function OnboardingScreen() {
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
           <View style={[styles.slide, { width }]}>
-            <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
-              <Ionicons name={item.icon} size={48} color={colors.primary} />
-            </View>
-            <Text style={[Typography.h1, styles.title, { color: colors.text }]}>
+            <Animated.View
+              style={[
+                styles.iconContainer,
+                { backgroundColor: colors.primaryLight },
+                { opacity: iconFade, transform: [{ translateY: iconTranslateY }] },
+              ]}
+            >
+              <Ionicons name={item.icon} size={64} color={colors.primary} />
+            </Animated.View>
+            <View
+              style={[
+                styles.accentLine,
+                { backgroundColor: colors.accent },
+              ]}
+            />
+            <Animated.Text
+              style={[
+                Typography.h1,
+                styles.title,
+                { color: colors.text },
+                { opacity: titleFade, transform: [{ translateY: titleTranslateY }] },
+              ]}
+            >
               {item.title}
-            </Text>
-            <Text style={[Typography.body, styles.body, { color: colors.textSecondary }]}>
+            </Animated.Text>
+            <Animated.Text
+              style={[
+                Typography.body,
+                styles.body,
+                { color: colors.textSecondary },
+                { opacity: bodyFade, transform: [{ translateY: bodyTranslateY }] },
+              ]}
+            >
               {item.body}
-            </Text>
+            </Animated.Text>
           </View>
         )}
       />
@@ -140,11 +237,12 @@ export default function OnboardingScreen() {
       <View style={[styles.footer, { paddingBottom: insets.bottom + Spacing.lg }]}>
         <View style={styles.dots}>
           {slides.map((_, index) => (
-            <View
+            <Animated.View
               key={index}
               style={[
                 styles.dot,
                 {
+                  width: dotWidths[index],
                   backgroundColor: index === currentIndex ? colors.primary : colors.border,
                 },
               ]}
@@ -160,6 +258,8 @@ export default function OnboardingScreen() {
               backgroundColor: colors.primary,
               transform: [{ scale: pressed ? 0.97 : 1 }],
             },
+            isLastSlide && styles.nextButtonLast,
+            isLastSlide && Shadows.elevated,
           ]}
         >
           <Text style={[Typography.button, styles.nextButtonText]}>
@@ -189,12 +289,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.xl,
   },
   iconContainer: {
-    width: 96,
-    height: 96,
+    width: 120,
+    height: 120,
     borderRadius: BorderRadius.full,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: Spacing.xl,
+    marginBottom: Spacing.md,
+  },
+  accentLine: {
+    height: 3,
+    width: 40,
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginVertical: Spacing.md,
   },
   title: {
     textAlign: 'center',
@@ -210,11 +317,11 @@ const styles = StyleSheet.create({
   dots: {
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: Spacing.lg,
     gap: Spacing.sm,
   },
   dot: {
-    width: 8,
     height: 8,
     borderRadius: 4,
   },
@@ -223,6 +330,9 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  nextButtonLast: {
+    height: 60,
   },
   nextButtonText: {
     color: '#FFFFFF',

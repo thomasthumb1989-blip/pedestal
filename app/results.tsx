@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -61,18 +61,44 @@ function generateTips(clarityScore: number, wpm: number, fillerPercentage: numbe
   return tips.slice(0, 3);
 }
 
+function useAnimatedCount(target: number, duration: number = 800): number {
+  const [display, setDisplay] = useState(0);
+  const animVal = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const listenerId = animVal.addListener(({ value }) => {
+      setDisplay(Math.round(value));
+    });
+    Animated.timing(animVal, {
+      toValue: target,
+      duration,
+      useNativeDriver: false,
+    }).start();
+    return () => {
+      animVal.removeListener(listenerId);
+    };
+  }, [target]);
+
+  return display;
+}
+
 type MetricCardProps = {
   label: string;
-  value: string;
+  value: number;
+  displayOverride?: string;
   subtitle?: string;
   valueColor: string;
   colors: ColorTheme;
+  animStyle?: object;
 };
 
-function MetricCard({ label, value, subtitle, valueColor, colors }: MetricCardProps) {
+function MetricCard({ label, value, displayOverride, subtitle, valueColor, colors, animStyle }: MetricCardProps) {
+  const counted = useAnimatedCount(value);
+  const shown = displayOverride ?? counted.toString();
+
   return (
-    <View style={[styles.metricCard, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
-      <Text style={[Typography.h1, { color: valueColor }]}>{value}</Text>
+    <Animated.View style={[styles.metricCard, { backgroundColor: colors.surfaceElevated }, Shadows.card, animStyle]}>
+      <Text style={[Typography.h1, { color: valueColor }]}>{shown}</Text>
       <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.xs }]}>
         {label}
       </Text>
@@ -81,6 +107,87 @@ function MetricCard({ label, value, subtitle, valueColor, colors }: MetricCardPr
           {subtitle}
         </Text>
       )}
+    </Animated.View>
+  );
+}
+
+function ClarityRing({ score, color, colors }: { score: number; color: string; colors: ColorTheme }) {
+  const pct = Math.min(score, 100) / 100;
+  const counted = useAnimatedCount(score);
+  const SIZE = 120;
+  const BORDER = 6;
+  const HALF = SIZE / 2;
+
+  // Semi-circle rotation technique for circular progress
+  // Left half covers 0-50%, right half covers 50-100%
+  const rightDeg = pct <= 0.5 ? pct * 360 : 180;
+  const leftDeg = pct > 0.5 ? (pct - 0.5) * 360 : 0;
+
+  return (
+    <View style={styles.clarityHero}>
+      <View style={{ width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' }}>
+        {/* Base circle (track) */}
+        <View style={{
+          width: SIZE,
+          height: SIZE,
+          borderRadius: HALF,
+          borderWidth: BORDER,
+          borderColor: colors.border,
+          position: 'absolute',
+        }} />
+
+        {/* Right half (0-180deg) */}
+        <View style={{
+          width: HALF,
+          height: SIZE,
+          position: 'absolute',
+          right: 0,
+          overflow: 'hidden',
+        }}>
+          <View style={{
+            width: SIZE,
+            height: SIZE,
+            borderRadius: HALF,
+            borderWidth: BORDER,
+            borderColor: color,
+            position: 'absolute',
+            right: 0,
+            transform: [{ rotate: `${rightDeg}deg` }],
+            borderLeftColor: 'transparent',
+            borderBottomColor: 'transparent',
+          }} />
+        </View>
+
+        {/* Left half (180-360deg) */}
+        {pct > 0.5 && (
+          <View style={{
+            width: HALF,
+            height: SIZE,
+            position: 'absolute',
+            left: 0,
+            overflow: 'hidden',
+          }}>
+            <View style={{
+              width: SIZE,
+              height: SIZE,
+              borderRadius: HALF,
+              borderWidth: BORDER,
+              borderColor: color,
+              position: 'absolute',
+              left: 0,
+              transform: [{ rotate: `${leftDeg}deg` }],
+              borderRightColor: 'transparent',
+              borderTopColor: 'transparent',
+            }} />
+          </View>
+        )}
+
+        {/* Score number */}
+        <Text style={{ fontSize: 48, fontWeight: '700', color }}>{counted}</Text>
+      </View>
+      <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: Spacing.sm }]}>
+        {STRINGS.RESULTS.CLARITY_SCORE}
+      </Text>
     </View>
   );
 }
@@ -103,7 +210,14 @@ function HighlightedTranscript({ transcript, colors }: { transcript: string; col
       elements.push(
         <Text
           key={`w-${i}`}
-          style={{ color: colors.error, fontWeight: '600' }}
+          style={{
+            color: colors.error,
+            fontWeight: '600',
+            backgroundColor: colors.error + '20',
+            borderRadius: 4,
+            paddingHorizontal: 2,
+            overflow: 'hidden',
+          }}
         >
           {word}
         </Text>,
@@ -150,6 +264,60 @@ export default function ResultsScreen() {
 
   const tips = generateTips(clarityScore, wpm, fillerPercentage);
 
+  // Staggered fade-in for the 3 metric cards (WPM, Filler, Duration)
+  const card0Opacity = useRef(new Animated.Value(0)).current;
+  const card0TransY = useRef(new Animated.Value(20)).current;
+  const card1Opacity = useRef(new Animated.Value(0)).current;
+  const card1TransY = useRef(new Animated.Value(20)).current;
+  const card2Opacity = useRef(new Animated.Value(0)).current;
+  const card2TransY = useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    Animated.stagger(150, [
+      Animated.parallel([
+        Animated.timing(card0Opacity, { toValue: 1, duration: 400, useNativeDriver: true }),
+        Animated.timing(card0TransY, { toValue: 0, duration: 400, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(card1Opacity, { toValue: 1, duration: 400, useNativeDriver: true }),
+        Animated.timing(card1TransY, { toValue: 0, duration: 400, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(card2Opacity, { toValue: 1, duration: 400, useNativeDriver: true }),
+        Animated.timing(card2TransY, { toValue: 0, duration: 400, useNativeDriver: true }),
+      ]),
+    ]).start();
+  }, []);
+
+  // Tips slide-up animation
+  const tipsTransY = useRef(new Animated.Value(40)).current;
+  const tipsOpacity = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (showTips) {
+      Animated.parallel([
+        Animated.spring(tipsTransY, {
+          toValue: 0,
+          tension: 50,
+          friction: 8,
+          useNativeDriver: true,
+        }),
+        Animated.spring(tipsOpacity, {
+          toValue: 1,
+          tension: 50,
+          friction: 8,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [showTips]);
+
+  const cardStyles = [
+    { opacity: card0Opacity, transform: [{ translateY: card0TransY }] },
+    { opacity: card1Opacity, transform: [{ translateY: card1TransY }] },
+    { opacity: card2Opacity, transform: [{ translateY: card2TransY }] },
+  ];
+
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -163,32 +331,48 @@ export default function ResultsScreen() {
         <HeaderLogo size={32} />
       </View>
 
+      {/* Celebration badge */}
+      {clarityScore >= 80 && (
+        <View style={[styles.celebrationBadge, { backgroundColor: colors.accent + '20' }]}>
+          <Ionicons name="star" size={16} color={colors.accent} />
+          <Text style={[Typography.caption, { color: colors.accent, fontWeight: '600', marginLeft: Spacing.xs }]}>
+            Great job!
+          </Text>
+        </View>
+      )}
+
+      {/* Clarity Score Hero */}
+      <ClarityRing
+        score={clarityScore}
+        color={getScoreColor(clarityScore, colors)}
+        colors={colors}
+      />
+
+      {/* Remaining 3 metric cards in a grid */}
       <View style={styles.metricsGrid}>
         <MetricCard
-          label={STRINGS.RESULTS.CLARITY_SCORE}
-          value={clarityScore.toString()}
-          valueColor={getScoreColor(clarityScore, colors)}
-          colors={colors}
-        />
-        <MetricCard
           label={STRINGS.RESULTS.WORDS_PER_MINUTE}
-          value={wpm.toString()}
+          value={wpm}
           subtitle={STRINGS.RESULTS.WPM_GOOD}
           valueColor={getWpmColor(wpm, colors)}
           colors={colors}
+          animStyle={cardStyles[0]}
         />
         <MetricCard
           label={STRINGS.RESULTS.FILLER_WORDS}
-          value={fillerCount.toString()}
+          value={fillerCount}
           subtitle={`${fillerPercentage}%`}
           valueColor={getFillerColor(fillerPercentage, colors)}
           colors={colors}
+          animStyle={cardStyles[1]}
         />
         <MetricCard
           label={STRINGS.RESULTS.DURATION}
-          value={formatDuration(durationSeconds)}
+          value={durationSeconds}
+          displayOverride={formatDuration(durationSeconds)}
           valueColor={colors.text}
           colors={colors}
+          animStyle={cardStyles[2]}
         />
       </View>
 
@@ -200,7 +384,12 @@ export default function ResultsScreen() {
       </View>
 
       {showTips && (
-        <View style={[styles.tipsCard, { backgroundColor: colors.primaryLight }, Shadows.card]}>
+        <Animated.View style={[
+          styles.tipsCard,
+          { backgroundColor: colors.primaryLight },
+          Shadows.card,
+          { opacity: tipsOpacity, transform: [{ translateY: tipsTransY }] },
+        ]}>
           <Text style={[Typography.h3, { color: colors.text, marginBottom: Spacing.md }]}>
             {STRINGS.RESULTS.TIPS_TITLE}
           </Text>
@@ -212,7 +401,7 @@ export default function ResultsScreen() {
               </Text>
             </View>
           ))}
-        </View>
+        </Animated.View>
       )}
 
       <View style={styles.buttons}>
@@ -266,6 +455,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: Spacing.md,
+  },
+  celebrationBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.full,
+    marginTop: Spacing.md,
+  },
+  clarityHero: {
+    alignItems: 'center',
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.sm,
   },
   metricsGrid: {
     flexDirection: 'row',

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
@@ -37,51 +37,77 @@ type PlanCardProps = {
   selected: boolean;
   colors: ColorTheme;
   onPress: () => void;
+  isRecommended?: boolean;
 };
 
-function PlanCard({ plan, selected, colors, onPress }: PlanCardProps) {
+function PlanCard({ plan, selected, colors, onPress, isRecommended }: PlanCardProps) {
+  const isAnnual = plan.id === 'annual';
   return (
-    <Pressable
-      onPress={() => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        onPress();
-      }}
-      style={({ pressed }) => [
-        styles.planCard,
-        {
-          backgroundColor: selected ? colors.primaryLight : colors.surfaceElevated,
-          borderColor: selected ? colors.primary : colors.border,
-          borderWidth: selected ? 2 : 1,
-          opacity: pressed ? 0.8 : 1,
-        },
-      ]}
-    >
-      <View style={styles.planLeft}>
-        <View
-          style={[
-            styles.radio,
-            {
-              borderColor: selected ? colors.primary : colors.textTertiary,
-              backgroundColor: selected ? colors.primary : 'transparent',
-            },
-          ]}
-        >
-          {selected && <View style={styles.radioInner} />}
-        </View>
-        <View style={styles.planText}>
-          <Text style={[Typography.h3, { color: colors.text }]}>{plan.label}</Text>
-          <Text style={[Typography.body, { color: colors.textSecondary }]}>{plan.price}</Text>
-        </View>
-      </View>
-
-      {plan.badge && (
-        <View style={[styles.badge, { backgroundColor: colors.accent }]}>
-          <Text style={[Typography.caption, { color: '#FFFFFF', fontWeight: '700' }]}>
-            {plan.badge}
+    <View style={{ position: 'relative' }}>
+      {isRecommended && selected && (
+        <View style={{
+          position: 'absolute',
+          top: -10,
+          left: Spacing.md,
+          backgroundColor: colors.accent,
+          paddingHorizontal: 8,
+          paddingVertical: 2,
+          borderRadius: 4,
+          zIndex: 1,
+        }}>
+          <Text style={[Typography.caption, { color: '#FFFFFF', fontWeight: '700', fontSize: 11 }]}>
+            RECOMMENDED
           </Text>
         </View>
       )}
-    </Pressable>
+      <Pressable
+        onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          onPress();
+        }}
+        style={({ pressed }) => [
+          styles.planCard,
+          {
+            backgroundColor: selected ? colors.primaryLight : colors.surfaceElevated,
+            borderColor: selected ? colors.primary : colors.border,
+            borderWidth: selected ? (isAnnual ? 2.5 : 2) : 1,
+            opacity: pressed ? 0.8 : 1,
+            ...(isAnnual ? { padding: Spacing.lg, ...Shadows.elevated } : {}),
+          },
+        ]}
+      >
+        <View style={styles.planLeft}>
+          <View
+            style={[
+              styles.radio,
+              {
+                borderColor: selected ? colors.primary : colors.textTertiary,
+                backgroundColor: selected ? colors.primary : 'transparent',
+              },
+            ]}
+          >
+            {selected && <View style={styles.radioInner} />}
+          </View>
+          <View style={styles.planText}>
+            <Text style={[Typography.h3, { color: colors.text }]}>{plan.label}</Text>
+            <Text style={[Typography.body, { color: colors.textSecondary }]}>{plan.price}</Text>
+            {plan.id === 'annual' && (
+              <Text style={[Typography.caption, { color: colors.success, fontWeight: '600' }]}>
+                Just £2.50/month
+              </Text>
+            )}
+          </View>
+        </View>
+
+        {plan.badge && (
+          <View style={[styles.badge, { backgroundColor: colors.accent }]}>
+            <Text style={[Typography.caption, { color: '#FFFFFF', fontWeight: '700' }]}>
+              {plan.badge}
+            </Text>
+          </View>
+        )}
+      </Pressable>
+    </View>
   );
 }
 
@@ -95,6 +121,20 @@ export default function PaywallScreen() {
   const [loading, setLoading] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  const featureAnims = useRef(FEATURES.map(() => new Animated.Value(0))).current;
+  const featureSlides = useRef(FEATURES.map(() => new Animated.Value(-20))).current;
+
+  useEffect(() => {
+    FEATURES.forEach((_, i) => {
+      setTimeout(() => {
+        Animated.parallel([
+          Animated.timing(featureAnims[i], { toValue: 1, duration: 300, useNativeDriver: true }),
+          Animated.timing(featureSlides[i], { toValue: 0, duration: 300, useNativeDriver: true }),
+        ]).start();
+      }, i * 200);
+    });
+  }, []);
 
   async function handlePurchase() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -176,13 +216,20 @@ export default function PaywallScreen() {
       {/* Feature list */}
       <View style={styles.features}>
         {FEATURES.map((feature, i) => (
-          <View key={i} style={styles.featureRow}>
+          <Animated.View key={i} style={[styles.featureRow, { opacity: featureAnims[i], transform: [{ translateX: featureSlides[i] }] }]}>
             <Ionicons name="checkmark-circle" size={22} color={colors.success} />
             <Text style={[Typography.body, { color: colors.text, marginLeft: Spacing.sm, flex: 1 }]}>
               {feature}
             </Text>
-          </View>
+          </Animated.View>
         ))}
+      </View>
+
+      {/* Social proof */}
+      <View style={{ paddingHorizontal: Spacing.lg }}>
+        <Text style={[Typography.body, { color: colors.accent, fontWeight: '600', textAlign: 'center', marginTop: Spacing.lg }]}>
+          Join 1,000+ speakers improving their clarity
+        </Text>
       </View>
 
       {/* Plan cards */}
@@ -194,12 +241,19 @@ export default function PaywallScreen() {
             selected={selectedPlan === plan.id}
             colors={colors}
             onPress={() => setSelectedPlan(plan.id)}
+            isRecommended={plan.id === 'annual'}
           />
         ))}
       </View>
 
       {/* CTA */}
       <View style={styles.ctaSection}>
+        {selectedPlan === 'annual' && (
+          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: Spacing.sm, gap: 8 }}>
+            <Text style={[Typography.body, { color: colors.textTertiary, textDecorationLine: 'line-through' }]}>£4.99/mo</Text>
+            <Text style={[Typography.body, { color: colors.success, fontWeight: '600' }]}>£2.50/mo</Text>
+          </View>
+        )}
         <Pressable
           onPress={handlePurchase}
           disabled={loading || restoring}
@@ -209,10 +263,11 @@ export default function PaywallScreen() {
               backgroundColor: colors.primary,
               opacity: loading || restoring ? 0.6 : pressed ? 0.9 : 1,
               transform: [{ scale: pressed && !loading ? 0.97 : 1 }],
+              ...Shadows.elevated,
             },
           ]}
         >
-          <Text style={[Typography.button, { color: '#FFFFFF', textTransform: 'uppercase' }]}>
+          <Text style={[Typography.button, { color: '#FFFFFF', textTransform: 'uppercase', fontSize: 18 }]}>
             {loading ? STRINGS.PAYWALL.LOADING : STRINGS.PAYWALL.CTA}
           </Text>
         </Pressable>
@@ -320,7 +375,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.xl,
   },
   ctaButton: {
-    height: 56,
+    height: 64,
     borderRadius: BorderRadius.lg,
     alignItems: 'center',
     justifyContent: 'center',

@@ -38,7 +38,9 @@ function SettingsRow({ icon, label, onPress, trailing, trailingText, destructive
       ]}
     >
       <View style={styles.rowLeft}>
-        <Ionicons name={icon} size={20} color={destructive ? colors.error : colors.primary} />
+        <View style={[styles.iconBg, { backgroundColor: `${destructive ? colors.error : colors.primary}15` }]}>
+          <Ionicons name={icon} size={20} color={destructive ? colors.error : colors.primary} />
+        </View>
         <Text style={[Typography.body, { color: destructive ? colors.error : colors.text, marginLeft: Spacing.md }]}>
           {label}
         </Text>
@@ -150,9 +152,12 @@ export default function SettingsScreen() {
     >
       {/* Subscription */}
       <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
-        <Text style={[Typography.caption, styles.sectionTitle, { color: colors.textSecondary }]}>
-          {STRINGS.SETTINGS.SUBSCRIPTION}
-        </Text>
+        <View style={styles.sectionTitleRow}>
+          <Ionicons name="diamond-outline" size={14} color={colors.textSecondary} />
+          <Text style={[Typography.caption, styles.sectionTitle, { color: colors.textSecondary }]}>
+            {STRINGS.SETTINGS.SUBSCRIPTION}
+          </Text>
+        </View>
         <SettingsRow
           icon="card-outline"
           label={STRINGS.SETTINGS.MANAGE_SUBSCRIPTION}
@@ -175,9 +180,12 @@ export default function SettingsScreen() {
 
       {/* General */}
       <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
-        <Text style={[Typography.caption, styles.sectionTitle, { color: colors.textSecondary }]}>
-          {STRINGS.SETTINGS.GENERAL}
-        </Text>
+        <View style={styles.sectionTitleRow}>
+          <Ionicons name="settings-outline" size={14} color={colors.textSecondary} />
+          <Text style={[Typography.caption, styles.sectionTitle, { color: colors.textSecondary }]}>
+            {STRINGS.SETTINGS.GENERAL}
+          </Text>
+        </View>
         <SettingsRow
           icon="notifications-outline"
           label={STRINGS.SETTINGS.NOTIFICATIONS}
@@ -188,6 +196,7 @@ export default function SettingsScreen() {
               onValueChange={toggleNotifications}
               trackColor={{ false: colors.border, true: colors.primary }}
               thumbColor="#FFFFFF"
+              ios_backgroundColor={colors.border}
             />
           }
         />
@@ -195,9 +204,12 @@ export default function SettingsScreen() {
 
       {/* Support */}
       <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
-        <Text style={[Typography.caption, styles.sectionTitle, { color: colors.textSecondary }]}>
-          {STRINGS.SETTINGS.SUPPORT}
-        </Text>
+        <View style={styles.sectionTitleRow}>
+          <Ionicons name="heart-outline" size={14} color={colors.textSecondary} />
+          <Text style={[Typography.caption, styles.sectionTitle, { color: colors.textSecondary }]}>
+            {STRINGS.SETTINGS.SUPPORT}
+          </Text>
+        </View>
         <SettingsRow
           icon="star-outline"
           label={STRINGS.SETTINGS.RATE_APP}
@@ -221,10 +233,13 @@ export default function SettingsScreen() {
       </View>
 
       {/* Danger Zone */}
-      <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
-        <Text style={[Typography.caption, styles.sectionTitle, { color: colors.error }]}>
-          {STRINGS.SETTINGS.DANGER}
-        </Text>
+      <View style={[styles.card, { backgroundColor: colors.error + '08', borderWidth: 1, borderColor: colors.error + '20' }, Shadows.card]}>
+        <View style={styles.sectionTitleRow}>
+          <Ionicons name="warning-outline" size={14} color={colors.error} />
+          <Text style={[Typography.caption, styles.sectionTitle, { color: colors.error }]}>
+            {STRINGS.SETTINGS.DANGER}
+          </Text>
+        </View>
         <SettingsRow
           icon="trash-outline"
           label={STRINGS.SETTINGS.DELETE_ACCOUNT}
@@ -235,7 +250,7 @@ export default function SettingsScreen() {
       </View>
 
       {/* App Version */}
-      <View style={[styles.card, { backgroundColor: colors.surfaceElevated }, Shadows.card]}>
+      <View style={[styles.card, { backgroundColor: 'transparent' }]}>
         <SettingsRow
           icon="information-circle-outline"
           label={STRINGS.SETTINGS.APP_VERSION}
@@ -260,7 +275,19 @@ const styles = StyleSheet.create({
   sectionTitle: {
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     marginBottom: Spacing.sm,
+  },
+  iconBg: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   row: {
     flexDirection: 'row',
