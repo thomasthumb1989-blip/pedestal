@@ -6,6 +6,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { HeaderLogo } from '@/components/HeaderLogo';
 import { Colors, ColorTheme, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 
@@ -156,9 +157,10 @@ export default function ResultsScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={[styles.header, { paddingTop: insets.top + Spacing.md }]}>
-        <Text style={[Typography.h1, { color: colors.text }]}>
+        <Text style={[Typography.h1, { color: colors.text, flex: 1 }]}>
           {STRINGS.RESULTS.TITLE}
         </Text>
+        <HeaderLogo size={32} />
       </View>
 
       <View style={styles.metricsGrid}>
@@ -261,6 +263,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: Spacing.md,
   },
   metricsGrid: {

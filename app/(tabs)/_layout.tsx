@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { HeaderLogo } from '@/components/HeaderLogo';
 import { Colors, Spacing } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 
@@ -56,6 +57,7 @@ export default function TabLayout() {
           fontSize: 18,
         },
         headerShadowVisible: false,
+        headerRight: () => <HeaderLogo />,
       }}
     >
       <Tabs.Screen

@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AIConsentModal } from '@/components/AIConsentModal';
+import { HeaderLogo } from '@/components/HeaderLogo';
 import { Colors, ColorTheme, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 import { getDrillById, Drill } from '@/src/constants/drills';
@@ -306,16 +307,19 @@ export default function DrillScreen() {
       showsVerticalScrollIndicator={false}
     >
       <View style={{ paddingTop: insets.top + Spacing.md }}>
-        <Pressable
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            router.back();
-          }}
-          style={styles.backButton}
-        >
-          <Ionicons name="chevron-back" size={24} color={colors.primary} />
-          <Text style={[Typography.body, { color: colors.primary }]}>Back</Text>
-        </Pressable>
+        <View style={styles.topRow}>
+          <Pressable
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.back();
+            }}
+            style={styles.backButton}
+          >
+            <Ionicons name="chevron-back" size={24} color={colors.primary} />
+            <Text style={[Typography.body, { color: colors.primary }]}>Back</Text>
+          </Pressable>
+          <HeaderLogo size={32} />
+        </View>
 
         <Text style={[Typography.h1, { color: colors.text }]}>{drill.title}</Text>
 
@@ -409,6 +413,11 @@ const styles = StyleSheet.create({
   center: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   backButton: {
     flexDirection: 'row',

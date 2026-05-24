@@ -9,7 +9,6 @@ import {
   View,
   ViewToken,
 } from 'react-native';
-import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
@@ -17,6 +16,7 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { HeaderLogo } from '@/components/HeaderLogo';
 import { Colors, Spacing, BorderRadius, Typography } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 
@@ -94,14 +94,17 @@ export default function OnboardingScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
-      <View style={[styles.skipContainer, { paddingRight: Spacing.md }]}>
-        {!isLastSlide && (
+      <View style={[styles.skipContainer, { paddingHorizontal: Spacing.md }]}>
+        {!isLastSlide ? (
           <Pressable onPress={handleSkip} hitSlop={12}>
             <Text style={[Typography.body, { color: colors.textSecondary }]}>
               {STRINGS.ONBOARDING.SKIP}
             </Text>
           </Pressable>
+        ) : (
+          <View />
         )}
+        <HeaderLogo size={32} />
       </View>
 
       <FlatList
@@ -121,11 +124,6 @@ export default function OnboardingScreen() {
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
           <View style={[styles.slide, { width }]}>
-            <Image
-              source={require('@/assets/images/icon.png')}
-              style={styles.onboardingLogo}
-              contentFit="contain"
-            />
             <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
               <Ionicons name={item.icon} size={48} color={colors.primary} />
             </View>
@@ -178,22 +176,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   skipContainer: {
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingVertical: Spacing.md,
     minHeight: 48,
-    justifyContent: 'center',
   },
   slide: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.xl,
-  },
-  onboardingLogo: {
-    width: 64,
-    height: 64,
-    borderRadius: BorderRadius.md,
-    marginBottom: Spacing.lg,
   },
   iconContainer: {
     width: 96,

@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { HeaderLogo } from '@/components/HeaderLogo';
 import { Colors, ColorTheme, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 
@@ -155,20 +155,16 @@ export default function PaywallScreen() {
       contentContainerStyle={{ paddingBottom: insets.bottom + Spacing.xl }}
       showsVerticalScrollIndicator={false}
     >
-      {/* Close button */}
-      <View style={[styles.closeRow, { paddingTop: insets.top + Spacing.sm }]}>
+      {/* Top bar */}
+      <View style={[styles.topBar, { paddingTop: insets.top + Spacing.sm }]}>
         <Pressable onPress={handleClose} hitSlop={16} style={styles.closeButton}>
           <Ionicons name="close" size={28} color={colors.textSecondary} />
         </Pressable>
+        <HeaderLogo size={32} />
       </View>
 
       {/* Header */}
       <View style={styles.header}>
-        <Image
-          source={require('@/assets/images/icon.png')}
-          style={styles.paywallLogo}
-          contentFit="contain"
-        />
         <Text style={[Typography.h1, { color: colors.text, textAlign: 'center', marginTop: Spacing.lg }]}>
           {STRINGS.PAYWALL.TITLE}
         </Text>
@@ -255,8 +251,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  closeRow: {
-    alignItems: 'flex-end',
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: Spacing.md,
   },
   closeButton: {
@@ -269,11 +267,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.lg,
     marginTop: Spacing.md,
-  },
-  paywallLogo: {
-    width: 56,
-    height: 56,
-    borderRadius: 12,
   },
   features: {
     paddingHorizontal: Spacing.lg,

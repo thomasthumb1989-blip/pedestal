@@ -203,11 +203,6 @@ export default function PracticeScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <Image
-        source={require('@/assets/images/icon.png')}
-        style={styles.appLogo}
-        contentFit="contain"
-      />
       <Text style={[Typography.h1, styles.appName, { color: colors.text }]}>
         {STRINGS.APP_NAME}
       </Text>
@@ -304,16 +299,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  appLogo: {
-    width: 48,
-    height: 48,
-    borderRadius: BorderRadius.sm,
-    alignSelf: 'center',
-    marginTop: Spacing.lg,
-  },
   appName: {
     textAlign: 'center',
-    marginTop: Spacing.sm,
+    marginTop: Spacing.xl,
   },
   recordArea: {
     flex: 1,
