@@ -210,6 +210,12 @@ export default function PracticeScreen() {
       const transcriptText = result.text;
       const metrics = analyzeSpeech(transcriptText, durationSeconds);
 
+      if (metrics.tooShort) {
+        setError(STRINGS.ERRORS.RECORDING_TOO_SHORT);
+        setIsAnalyzing(false);
+        return;
+      }
+
       await saveSession({
         durationSeconds,
         clarityScore: metrics.clarityScore,

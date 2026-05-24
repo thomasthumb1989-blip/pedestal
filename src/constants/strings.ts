@@ -160,6 +160,7 @@ export const STRINGS = {
     SUBSCRIPTION_ERROR: 'Unable to verify subscription. Please try again.',
     NO_API_KEY: 'Speech analysis not configured. Check your API key.',
     TRANSCRIPTION_FAILED: 'Could not analyze speech. Please try again.',
+    RECORDING_TOO_SHORT: 'Recording too short for accurate analysis. Try speaking at least a few sentences.',
     SOMETHING_WRONG: 'Something went wrong',
     ERROR_BOUNDARY_BODY: 'The app encountered an unexpected error. Please restart to continue.',
     RESTART: 'Restart',

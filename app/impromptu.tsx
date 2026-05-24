@@ -183,6 +183,12 @@ export default function ImpromptuScreen() {
       const transcriptText = result.text;
       const metrics = analyzeSpeech(transcriptText, durationSeconds);
 
+      if (metrics.tooShort) {
+        setError(STRINGS.ERRORS.RECORDING_TOO_SHORT);
+        setPhase('topic');
+        return;
+      }
+
       await saveSession({
         durationSeconds,
         clarityScore: metrics.clarityScore,

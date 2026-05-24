@@ -190,6 +190,13 @@ export default function DrillScreen() {
       }
 
       const metrics = analyzeSpeech(transcriptionResult.text, durationSeconds);
+
+      if (metrics.tooShort) {
+        setError(STRINGS.ERRORS.RECORDING_TOO_SHORT);
+        setIsAnalyzing(false);
+        return;
+      }
+
       const value = getMetricValue(metrics, drill!.targetMetric);
       const passed = checkPassed(drill!, value);
 
