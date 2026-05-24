@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
 import * as Haptics from 'expo-haptics';
@@ -202,6 +203,11 @@ export default function PracticeScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Image
+        source={require('@/assets/images/icon.png')}
+        style={styles.appLogo}
+        contentFit="contain"
+      />
       <Text style={[Typography.h1, styles.appName, { color: colors.text }]}>
         {STRINGS.APP_NAME}
       </Text>
@@ -294,9 +300,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  appLogo: {
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.sm,
+    alignSelf: 'center',
+    marginTop: Spacing.lg,
+  },
   appName: {
     textAlign: 'center',
-    marginTop: Spacing.xl,
+    marginTop: Spacing.sm,
   },
   recordArea: {
     flex: 1,

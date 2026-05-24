@@ -9,6 +9,7 @@ import {
   View,
   ViewToken,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
@@ -120,6 +121,11 @@ export default function OnboardingScreen() {
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
           <View style={[styles.slide, { width }]}>
+            <Image
+              source={require('@/assets/images/icon.png')}
+              style={styles.onboardingLogo}
+              contentFit="contain"
+            />
             <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
               <Ionicons name={item.icon} size={48} color={colors.primary} />
             </View>
@@ -182,6 +188,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: Spacing.xl,
+  },
+  onboardingLogo: {
+    width: 64,
+    height: 64,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.lg,
   },
   iconContainer: {
     width: 96,

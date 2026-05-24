@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
@@ -163,9 +164,11 @@ export default function PaywallScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <View style={[styles.iconCircle, { backgroundColor: colors.primaryLight }]}>
-          <Ionicons name="mic" size={36} color={colors.primary} />
-        </View>
+        <Image
+          source={require('@/assets/images/icon.png')}
+          style={styles.paywallLogo}
+          contentFit="contain"
+        />
         <Text style={[Typography.h1, { color: colors.text, textAlign: 'center', marginTop: Spacing.lg }]}>
           {STRINGS.PAYWALL.TITLE}
         </Text>
@@ -267,12 +270,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     marginTop: Spacing.md,
   },
-  iconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
+  paywallLogo: {
+    width: 56,
+    height: 56,
+    borderRadius: 12,
   },
   features: {
     paddingHorizontal: Spacing.lg,
