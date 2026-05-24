@@ -64,6 +64,12 @@ export default function OnboardingScreen() {
 
   const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
 
+  const getItemLayout = (_: any, index: number) => ({
+    length: width,
+    offset: width * index,
+    index,
+  });
+
   async function completeOnboarding() {
     await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
     router.replace('/paywall');
@@ -106,6 +112,11 @@ export default function OnboardingScreen() {
         bounces={false}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
+        getItemLayout={getItemLayout}
+        onMomentumScrollEnd={(e) => {
+          const index = Math.round(e.nativeEvent.contentOffset.x / width);
+          setCurrentIndex(index);
+        }}
         keyExtractor={(_, index) => index.toString()}
         renderItem={({ item }) => (
           <View style={[styles.slide, { width }]}>
