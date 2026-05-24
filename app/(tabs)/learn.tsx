@@ -1,28 +1,112 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
-import { Colors, Spacing, Typography } from '@/constants/Colors';
+import { Colors, ColorTheme, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
+import { DRILL_CATEGORIES, getDrillsByCategory, DrillCategoryInfo, DrillDifficulty } from '@/src/constants/drills';
+
+function difficultyColor(difficulty: DrillDifficulty, colors: ColorTheme): string {
+  if (difficulty === 'Beginner') return colors.success;
+  if (difficulty === 'Intermediate') return colors.warning;
+  return colors.error;
+}
+
+type CategoryCardProps = {
+  category: DrillCategoryInfo;
+  colors: ColorTheme;
+  onPress: () => void;
+};
+
+function CategoryCard({ category, colors, onPress }: CategoryCardProps) {
+  const drills = getDrillsByCategory(category.id);
+
+  return (
+    <Pressable
+      onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        onPress();
+      }}
+      style={({ pressed }) => [
+        styles.categoryCard,
+        { backgroundColor: colors.surfaceElevated, opacity: pressed ? 0.7 : 1 },
+        Shadows.card,
+      ]}
+    >
+      <View style={styles.categoryHeader}>
+        <View style={[styles.categoryIcon, { backgroundColor: colors.primaryLight }]}>
+          <Ionicons
+            name={category.icon as any}
+            size={24}
+            color={colors.primary}
+          />
+        </View>
+        <View style={styles.categoryText}>
+          <Text style={[Typography.h3, { color: colors.text }]}>
+            {category.title}
+          </Text>
+          <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: 2 }]}>
+            {category.description}
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+      </View>
+
+      <View style={styles.drillPills}>
+        {drills.map((drill) => (
+          <View
+            key={drill.id}
+            style={[
+              styles.difficultyPill,
+              { backgroundColor: difficultyColor(drill.difficulty, colors) + '20' },
+            ]}
+          >
+            <Text
+              style={[
+                Typography.caption,
+                { color: difficultyColor(drill.difficulty, colors), fontWeight: '600' },
+              ]}
+            >
+              {drill.difficulty}
+            </Text>
+          </View>
+        ))}
+      </View>
+    </Pressable>
+  );
+}
 
 export default function LearnScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme];
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.emptyState}>
-        <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
-          <Ionicons name="book-outline" size={36} color={colors.primary} />
-        </View>
-        <Text style={[Typography.h3, styles.emptyTitle, { color: colors.text }]}>
-          {STRINGS.LEARN.EMPTY_TITLE}
-        </Text>
-        <Text style={[Typography.body, styles.emptyBody, { color: colors.textSecondary }]}>
-          {STRINGS.LEARN.EMPTY_BODY}
-        </Text>
-      </View>
-    </View>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={{ paddingBottom: insets.bottom + Spacing.lg }}
+      showsVerticalScrollIndicator={false}
+    >
+      <Text style={[Typography.h1, styles.title, { color: colors.text }]}>
+        {STRINGS.LEARN.TITLE}
+      </Text>
+
+      {DRILL_CATEGORIES.map((category) => (
+        <CategoryCard
+          key={category.id}
+          category={category}
+          colors={colors}
+          onPress={() => router.push({
+            pathname: '/drills',
+            params: { category: category.id },
+          })}
+        />
+      ))}
+    </ScrollView>
   );
 }
 
@@ -31,26 +115,40 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: Spacing.md,
   },
-  emptyState: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.xl,
+  title: {
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.md,
   },
-  iconContainer: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: Spacing.lg,
-  },
-  emptyTitle: {
-    textAlign: 'center',
+  categoryCard: {
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
     marginBottom: Spacing.sm,
   },
-  emptyBody: {
-    textAlign: 'center',
-    lineHeight: 22,
+  categoryHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  categoryIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  categoryText: {
+    flex: 1,
+    marginLeft: Spacing.md,
+    marginRight: Spacing.sm,
+  },
+  drillPills: {
+    flexDirection: 'row',
+    gap: Spacing.xs,
+    marginTop: Spacing.sm,
+    marginLeft: 60,
+  },
+  difficultyPill: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.sm,
   },
 });

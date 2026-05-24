@@ -61,9 +61,26 @@ export const STRINGS = {
   },
 
   LEARN: {
-    TITLE: 'Learn & Practice',
-    EMPTY_TITLE: 'Coming soon',
-    EMPTY_BODY: 'Drills and exercises coming soon',
+    TITLE: 'Fix-It Drills',
+    EXERCISES: 'exercises',
+    DIFFICULTY_BEGINNER: 'Beginner',
+    DIFFICULTY_INTERMEDIATE: 'Intermediate',
+    DIFFICULTY_ADVANCED: 'Advanced',
+  },
+
+  DRILL: {
+    TIP_LABEL: 'Technique',
+    PROMPT_LABEL: 'Read This Aloud',
+    RECORD_CTA: 'Record & Practice',
+    ANALYZING: 'Checking your performance...',
+    RESULT_TITLE: 'Drill Result',
+    PASSED: 'Passed!',
+    NEEDS_WORK: 'Keep Practicing',
+    YOUR_SCORE: 'Your Score',
+    TARGET: 'Target',
+    TRY_AGAIN: 'Try Again',
+    BACK_TO_DRILLS: 'Back to Drills',
+    MIN_DURATION: 'Record at least 10 seconds',
   },
 
   SETTINGS: {
