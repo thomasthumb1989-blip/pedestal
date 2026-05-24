@@ -51,6 +51,13 @@ export const STRINGS = {
     TITLE: 'Your Progress',
     EMPTY_TITLE: 'No sessions yet',
     EMPTY_BODY: 'Complete your first session to see your progress here',
+    TOTAL_SESSIONS: 'Sessions',
+    AVG_CLARITY: 'Avg Clarity',
+    AVG_WPM: 'Avg WPM',
+    TOTAL_TIME: 'Practice Time',
+    RECENT_SESSIONS: 'Recent Sessions',
+    IMPROVEMENT: 'Clarity Over Time',
+    CHART_MIN_SESSIONS: 'Complete 2+ sessions to see your trend',
   },
 
   LEARN: {
