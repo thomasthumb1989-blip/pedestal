@@ -74,8 +74,11 @@ export async function transcribeAudio(fileUri: string): Promise<TranscriptionRes
 
   if (Platform.OS === 'web') {
     debug.mimeType = 'audio/webm';
+    console.log('[TRANSCRIBE] Fetching blob from URI...');
     const fileResponse = await fetch(fileUri);
     const blob = await fileResponse.blob();
+    debug.fileSize = blob.size;
+    console.log('[TRANSCRIBE] Blob size:', blob.size, 'bytes | type:', blob.type);
     formData.append('file', blob, 'recording.webm');
   } else {
     // Use audio/mp4 (correct MIME for m4a) instead of audio/m4a
