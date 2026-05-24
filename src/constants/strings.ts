@@ -23,6 +23,28 @@ export const STRINGS = {
 
   PRACTICE: {
     TAP_TO_START: 'Tap to start practicing',
+    RECORDING: 'Recording...',
+    TAP_TO_STOP: 'Tap to stop',
+    MIN_DURATION: 'Record at least 10 seconds',
+    ANALYZING: 'Analyzing your speech...',
+  },
+
+  RESULTS: {
+    TITLE: 'Session Results',
+    CLARITY_SCORE: 'Clarity Score',
+    WORDS_PER_MINUTE: 'Words / Min',
+    FILLER_WORDS: 'Filler Words',
+    DURATION: 'Duration',
+    WPM_GOOD: '130-160 is ideal',
+    TRANSCRIPT_TITLE: 'Your Transcript',
+    PRACTICE_AGAIN: 'Practice Again',
+    VIEW_TIPS: 'View Tips',
+    TIPS_TITLE: 'Tips for You',
+    TIP_SLOW_DOWN: 'Try slowing down. Pausing between thoughts sounds more confident than rushing.',
+    TIP_SPEED_UP: 'You spoke slowly. Try increasing your energy and pace slightly.',
+    TIP_FILLERS: 'Replace filler words with a brief pause. Silence sounds more powerful than "um".',
+    TIP_CLARITY: 'Great clarity! Keep practicing to maintain this level.',
+    TIP_GOOD_PACE: 'Your pace is in the ideal range. Keep it up!',
   },
 
   PROGRESS: {
@@ -64,5 +86,7 @@ export const STRINGS = {
     RECORDING_FAILED: 'Recording failed. Please try again.',
     NETWORK_ERROR: 'No internet connection. Some features may be limited.',
     SUBSCRIPTION_ERROR: 'Unable to verify subscription. Please try again.',
+    NO_API_KEY: 'Speech analysis not configured. Check your API key.',
+    TRANSCRIPTION_FAILED: 'Could not analyze speech. Please try again.',
   },
 } as const;
