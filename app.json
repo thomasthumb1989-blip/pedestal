@@ -1,18 +1,18 @@
 {
   "expo": {
-    "name": "app_v2",
-    "slug": "app_v2",
+    "name": "Pedestal: Speech Coach",
+    "slug": "pedestal",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "appv2",
+    "scheme": "pedestal",
     "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "uk.karamafandi.appv2"
+      "bundleIdentifier": "uk.karamafandi.pedestal"
     },
     "android": {
-      "package": "uk.karamafandi.appv2",
+      "package": "uk.karamafandi.pedestal",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

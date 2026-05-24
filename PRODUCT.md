@@ -1,4 +1,4 @@
-# Product Brief — Public Speaking Coach App
+# Product Brief — Pedestal: Speech Coach
 
 ## 1. App Concept
 
@@ -52,60 +52,48 @@ We close the diagnosis-to-fix gap. Every speech problem we detect triggers a spe
 | **Provider** | RevenueCat (react-native-purchases) |
 | **Rationale** | Hard paywall converts 10.7% vs 2.1% freemium (5x gap). Revenue per install: £3.09 hard vs £0.38 freemium (8x gap). |
 
-## 7. App Name Options
+## 7. App Name (Final)
 
-Format: `[BrandName]: [Primary Keyword]` — under 30 characters.
-
-| # | Name | Chars | Primary Keyword | Traffic | Difficulty | KEI |
-|---|------|:---:|-----------------|:---:|:---:|:---:|
-| 1 | **Claro: Speech Training** | 22 | speech training | 41 | 32 | 1.27 |
-| 2 | **Podium: Speaking Practice** | 25 | speaking practice | 53 | 38 | 1.40 |
-| 3 | **Orate: Speech Practice** | 22 | speech practice | 45 | 36 | 1.28 |
-| 4 | **Stagekit: Speech Coach** | 22 | speech coach | 44 | 43 | 1.03 |
-| 5 | **Voxly: Presentation Practice** | 28 | presentation practice | 42 | 35 | 1.21 |
+| Field | Value |
+|-------|-------|
+| **Title** | Pedestal: Speech Coach (22 chars) |
+| **Bundle ID** | uk.karamafandi.pedestal |
+| **Primary Keyword** | speech coach (traffic 44, difficulty 43, KEI 1.03) |
 
 *Keyword data from Applyra API (2026-05-24, US App Store).*
 
-**Recommendation:** Option 1 (Claro) or Option 2 (Podium).
-- Claro has lowest difficulty (32) and "claro" means "clear" in Spanish/Portuguese/Italian — international appeal.
-- Podium has highest traffic keyword (53) and strongest brand imagery.
+## 8. Subtitle (Final)
 
-## 8. Subtitle Options
+| Field | Value |
+|-------|-------|
+| **Subtitle** | Reduce Filler Words Faster (26 chars) |
 
-30 characters max. Uses secondary keywords NOT repeated from title. Per ASO rules: Apple combines title + subtitle + keyword field, so zero overlap.
-
-| # | Subtitle | Chars | Works With Titles |
-|---|----------|:---:|-------------------|
-| 1 | **Reduce Filler Words Faster** | 26 | All 5 |
-| 2 | **AI Vocal Confidence Builder** | 27 | All 5 |
-| 3 | **Improve Presentation Skill** | 27 | 1, 2, 3, 4 (not 5) |
-
-**Recommendation:** Option 1. "Filler words" is the #1 pain point in competitor reviews and signals immediate, concrete value.
+"Filler words" is the #1 pain point in competitor reviews and signals immediate, concrete value. No keyword overlap with title.
 
 ## 9. Target Keywords
 
-Top 10 ranked by opportunity (KEI), for the 100-character keyword field. Exclude whichever words appear in your chosen title + subtitle.
+Top 10 ranked by opportunity (KEI), for the 100-character keyword field. Words already in title ("speech", "coach", "pedestal") and subtitle ("reduce", "filler", "word", "faster") are excluded — Apple combines all three fields automatically.
 
-| Rank | Keyword | Traffic | Difficulty | KEI | Exclude If In Title |
-|------|---------|:---:|:---:|:---:|---------------------|
-| 1 | speaking practice | 53 | 38 | 1.40 | Title 2 |
-| 2 | speech practice | 45 | 36 | 1.28 | Title 3 |
-| 3 | speech training | 41 | 32 | 1.27 | Title 1 |
-| 4 | presentation practice | 42 | 35 | 1.21 | Title 5 |
-| 5 | speech coach | 44 | 43 | 1.03 | Title 4 |
-| 6 | public speaking coach | 38 | 40 | 0.95 | — |
-| 7 | public speaking | 41 | 50 | 0.82 | — |
-| 8 | public speaking ai | 39 | 50 | 0.77 | — |
-| 9 | voice training | — | — | — | — |
-| 10 | communication skill | — | — | — | — |
+| Rank | Keyword | Traffic | Difficulty | KEI |
+|------|---------|:---:|:---:|:---:|
+| 1 | speaking practice | 53 | 38 | 1.40 |
+| 2 | speech practice | 45 | 36 | 1.28 |
+| 3 | speech training | 41 | 32 | 1.27 |
+| 4 | presentation practice | 42 | 35 | 1.21 |
+| 5 | public speaking | 41 | 50 | 0.82 |
+| 6 | public speaking ai | 39 | 50 | 0.77 |
+| 7 | voice training | — | — | — |
+| 8 | communication skill | — | — | — |
+| 9 | confidence builder | — | — | — |
+| 10 | vocal improvement | — | — | — |
 
-*Keywords 9–10 are adjacent opportunities from competitor analysis (not yet verified via Applyra — API had TLS issues). Verify before finalising keyword field.*
+*Keywords 7–10 are adjacent opportunities from competitor analysis (not yet verified via Applyra). Verify before finalising.*
 
-**Example keyword field** (if using Title 1 + Subtitle 1):
+**Keyword field** (excluding words already in title + subtitle):
 ```
-speaking,practice,presentation,coach,public,ai,voice,communication,skill,improve,anxiety,daily
+speaking,practice,presentation,training,public,ai,voice,communication,skill,confidence,vocal,daily
 ```
-92 characters. Room for 8 more characters of keywords.
+99 characters. 1 char remaining.
 
 **ASO reminders:**
 - Singulars only (Apple matches plurals)

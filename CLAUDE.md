@@ -1,4 +1,10 @@
-# PROJECT RULES
+# PROJECT RULES — Pedestal: Speech Coach
+
+## App Identity
+- App Name: Pedestal: Speech Coach
+- Subtitle: Reduce Filler Words Faster
+- Bundle ID: uk.karamafandi.pedestal
+- GitHub: thomasthumb1989-blip/pedestal
 
 ## Developer Setup
 - Developer: Karam Afandi, Wales, UK
