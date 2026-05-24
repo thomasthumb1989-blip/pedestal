@@ -26,7 +26,7 @@ function formatTime(seconds: number): string {
 }
 
 function getMetricLabel(metric: string): string {
-  if (metric === 'fillerPercentage') return 'Filler %';
+  if (metric === 'fillerPercentage') return 'Clarity';
   if (metric === 'wordsPerMinute') return 'WPM';
   return 'Clarity';
 }
@@ -39,6 +39,10 @@ function getMetricValue(metrics: SpeechMetrics, metric: string): number {
 
 function formatTarget(drill: Drill): string {
   const label = getMetricLabel(drill.targetMetric);
+  if (drill.targetMetric === 'fillerPercentage') {
+    // Flip: "filler < 3%" becomes "Clarity > 97%"
+    return `${label} > ${100 - drill.targetValue}%`;
+  }
   if (drill.targetDirection === 'below') return `${label} < ${drill.targetValue}%`;
   if (drill.targetDirection === 'above') return `${label} > ${drill.targetValue}`;
   return `${label}: ${drill.targetValue}-${drill.targetMax}`;
@@ -51,7 +55,7 @@ function checkPassed(drill: Drill, value: number): boolean {
 }
 
 function formatMetricDisplay(drill: Drill, value: number): string {
-  if (drill.targetMetric === 'fillerPercentage') return `${value}%`;
+  if (drill.targetMetric === 'fillerPercentage') return `${100 - value}%`;
   return value.toString();
 }
 
@@ -246,7 +250,7 @@ export default function DrillScreen() {
           <View style={styles.resultMetrics}>
             <View style={styles.resultMetricRow}>
               <Text style={[Typography.body, { color: colors.textSecondary }]}>
-                {STRINGS.DRILL.YOUR_SCORE}
+                {getMetricLabel(drill.targetMetric)} Score
               </Text>
               <Text style={[Typography.h3, { color: resultColor(passed, colors) }]}>
                 {formatMetricDisplay(drill, value)}
