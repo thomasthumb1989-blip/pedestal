@@ -9,6 +9,12 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { HeaderLogo } from '@/components/HeaderLogo';
 import { Colors, ColorTheme, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
+import {
+  generateDetailedTips,
+  getFeedbackHeader,
+  SpeechTip,
+  TipSeverity,
+} from '@/src/services/speechAnalysis';
 
 const FILLER_WORDS_SET = new Set([
   'um', 'uh', 'like', 'you know', 'so', 'basically',
@@ -39,26 +45,16 @@ function getFillerColor(percentage: number, colors: ColorTheme): string {
   return colors.error;
 }
 
-function generateTips(clarityScore: number, wpm: number, fillerPercentage: number): string[] {
-  const tips: string[] = [];
+function severityColor(severity: TipSeverity, colors: ColorTheme): string {
+  if (severity === 'critical') return colors.error;
+  if (severity === 'improvement') return colors.accent;
+  return colors.success;
+}
 
-  if (fillerPercentage > 5) {
-    tips.push(STRINGS.RESULTS.TIP_FILLERS);
-  }
-
-  if (wpm > 160) {
-    tips.push(STRINGS.RESULTS.TIP_SLOW_DOWN);
-  } else if (wpm < 110) {
-    tips.push(STRINGS.RESULTS.TIP_SPEED_UP);
-  } else {
-    tips.push(STRINGS.RESULTS.TIP_GOOD_PACE);
-  }
-
-  if (clarityScore >= 80 && fillerPercentage <= 5) {
-    tips.push(STRINGS.RESULTS.TIP_CLARITY);
-  }
-
-  return tips.slice(0, 3);
+function severityIcon(severity: TipSeverity): keyof typeof Ionicons.glyphMap {
+  if (severity === 'critical') return 'alert-circle';
+  if (severity === 'improvement') return 'arrow-up-circle';
+  return 'checkmark-circle';
 }
 
 function useAnimatedCount(target: number, duration: number = 800): number {
@@ -262,7 +258,16 @@ export default function ResultsScreen() {
   const durationSeconds = parseInt(params.durationSeconds ?? '0', 10);
   const transcript = params.transcript ?? '';
 
-  const tips = generateTips(clarityScore, wpm, fillerPercentage);
+  const tips = generateDetailedTips(transcript, {
+    clarityScore,
+    wordsPerMinute: wpm,
+    totalWords: parseInt(params.totalWords ?? '0', 10),
+    fillerCount,
+    fillerPercentage,
+    fillerPositions: [],
+    tooShort: false,
+  });
+  const feedbackHeader = getFeedbackHeader(clarityScore);
 
   // Staggered fade-in for the 3 metric cards (WPM, Filler, Duration)
   const card0Opacity = useRef(new Animated.Value(0)).current;
@@ -386,21 +391,46 @@ export default function ResultsScreen() {
       {showTips && (
         <Animated.View style={[
           styles.tipsCard,
-          { backgroundColor: colors.primaryLight },
+          { backgroundColor: colors.surfaceElevated },
           Shadows.card,
           { opacity: tipsOpacity, transform: [{ translateY: tipsTransY }] },
         ]}>
-          <Text style={[Typography.h3, { color: colors.text, marginBottom: Spacing.md }]}>
+          {/* Feedback header */}
+          <View style={[styles.feedbackHeader, { backgroundColor: colors.primaryLight }]}>
+            <Ionicons
+              name={clarityScore >= 75 ? 'thumbs-up' : 'fitness'}
+              size={20}
+              color={colors.primary}
+            />
+            <Text style={[Typography.h3, { color: colors.primary, marginLeft: Spacing.sm, flex: 1 }]}>
+              {feedbackHeader}
+            </Text>
+          </View>
+
+          <Text style={[Typography.h3, { color: colors.text, marginTop: Spacing.md, marginBottom: Spacing.sm }]}>
             {STRINGS.RESULTS.TIPS_TITLE}
           </Text>
-          {tips.map((tip, i) => (
-            <View key={i} style={styles.tipRow}>
-              <Ionicons name="bulb-outline" size={18} color={colors.accent} />
-              <Text style={[Typography.body, { color: colors.text, flex: 1, marginLeft: Spacing.sm }]}>
-                {tip}
-              </Text>
-            </View>
-          ))}
+
+          {tips.map((tip, i) => {
+            const color = severityColor(tip.severity, colors);
+            const icon = severityIcon(tip.severity);
+            return (
+              <View key={i} style={[styles.tipCard, { borderLeftColor: color }]}>
+                <View style={styles.tipHeader}>
+                  <Ionicons name={icon} size={18} color={color} />
+                  <Text style={[Typography.body, { color, fontWeight: '700', marginLeft: Spacing.xs }]}>
+                    {tip.label}
+                  </Text>
+                </View>
+                <Text style={[Typography.body, { color: colors.text, marginTop: 4 }]}>
+                  {tip.detail}
+                </Text>
+                <Text style={[Typography.caption, { color: colors.textSecondary, marginTop: 4, fontStyle: 'italic' }]}>
+                  {tip.fix}
+                </Text>
+              </View>
+            );
+          })}
         </Animated.View>
       )}
 
@@ -496,10 +526,21 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.md,
     padding: Spacing.md,
   },
-  tipRow: {
+  feedbackHeader: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.sm,
+  },
+  tipCard: {
+    borderLeftWidth: 3,
+    paddingLeft: Spacing.md,
+    paddingVertical: Spacing.sm,
     marginBottom: Spacing.sm,
+  },
+  tipHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   buttons: {
     paddingHorizontal: Spacing.md,
