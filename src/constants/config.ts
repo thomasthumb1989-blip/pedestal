@@ -10,5 +10,5 @@ export const SUBSCRIPTION = {
   MONTHLY_PRICE: '£4.99',
   ANNUAL_PRICE: '£29.99',
   LIFETIME_PRICE: '£49.99',
-  FREE_TRIAL_DAYS: 17,
+  FREE_TRIAL_DAYS: 3,
 } as const;

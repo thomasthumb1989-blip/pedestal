@@ -56,6 +56,7 @@ function RootLayoutNav() {
       <Stack.Screen name="drills" options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="drill" options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="impromptu" options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="paywall" options={{ animation: 'fade' }} />
     </Stack>
   );
 }

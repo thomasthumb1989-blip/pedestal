@@ -66,7 +66,7 @@ export default function OnboardingScreen() {
 
   async function completeOnboarding() {
     await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
-    router.replace('/(tabs)');
+    router.replace('/paywall');
   }
 
   function handleNext() {

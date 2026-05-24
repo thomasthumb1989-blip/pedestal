@@ -45,7 +45,7 @@ We close the diagnosis-to-fix gap. Every speech problem we detect triggers a spe
 | | Detail |
 |---|--------|
 | **Model** | Hard paywall with free trial |
-| **Free trial** | 17 days (full access, no feature gating) |
+| **Free trial** | 3 days (full access, no feature gating) |
 | **Monthly** | £4.99/month |
 | **Annual** | £29.99/year (show "50% saving" prominently) |
 | **Lifetime** | £49.99 (optional third tier) |
