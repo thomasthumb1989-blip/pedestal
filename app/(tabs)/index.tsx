@@ -137,6 +137,7 @@ export default function PracticeScreen() {
     try {
       const permission = await Audio.requestPermissionsAsync();
       if (!permission.granted) {
+        setCountdown(0);
         setError('Microphone permission required');
         return;
       }
@@ -150,6 +151,7 @@ export default function PracticeScreen() {
         Audio.RecordingOptionsPresets.HIGH_QUALITY,
       );
       recordingRef.current = recording;
+      setCountdown(0);
       setIsRecording(true);
       setElapsed(0);
 
@@ -165,6 +167,7 @@ export default function PracticeScreen() {
 
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch {
+      setCountdown(0);
       setError(STRINGS.ERRORS.RECORDING_FAILED);
     }
   }
@@ -260,8 +263,9 @@ export default function PracticeScreen() {
         if (prev <= 1) {
           if (countdownRef.current) clearInterval(countdownRef.current);
           countdownRef.current = null;
+          // Keep countdown at 1 to prevent idle flash — startRecording clears it
           startRecording();
-          return 0;
+          return prev;
         }
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         return prev - 1;
