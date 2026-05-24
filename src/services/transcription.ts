@@ -1,3 +1,5 @@
+import { Platform } from 'react-native';
+
 import { OPENAI_API_KEY } from '@/src/constants/config';
 
 export type TranscriptionResult =
@@ -10,11 +12,21 @@ export async function transcribeAudio(fileUri: string): Promise<TranscriptionRes
   }
 
   const formData = new FormData();
-  formData.append('file', {
-    uri: fileUri,
-    type: 'audio/m4a',
-    name: 'recording.m4a',
-  } as any);
+
+  if (Platform.OS === 'web') {
+    // Web: fetch file as blob then append
+    const fileResponse = await fetch(fileUri);
+    const blob = await fileResponse.blob();
+    formData.append('file', blob, 'recording.webm');
+  } else {
+    // Native: use RN's { uri, type, name } pattern
+    formData.append('file', {
+      uri: fileUri,
+      type: 'audio/m4a',
+      name: 'recording.m4a',
+    } as any);
+  }
+
   formData.append('model', 'whisper-1');
 
   try {
