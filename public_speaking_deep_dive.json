@@ -1,0 +1,239 @@
+{
+  "generatedAt": "2026-05-24T15:26:10.099Z",
+  "autocomplete": {
+    "suggestions": [
+      "public speaking practice",
+      "public speaking free",
+      "public speaking",
+      "public speaking practice free",
+      "public speaking coach",
+      "speeko: ai for public speaking",
+      "public speaking ai",
+      "public speaking with aj",
+      "public speaking teleprompter",
+      "public speaking coach: babli"
+    ],
+    "normalized_prefix": "public speaking",
+    "store": "ITUNES",
+    "country": "US",
+    "lang": "en-US"
+  },
+  "keywordInspect": {
+    "keyword": "public speaking practice",
+    "store": "ITUNES",
+    "country": "US",
+    "lang": "en-US",
+    "difficulty_score": 34,
+    "traffic_score": 30,
+    "kei": {
+      "score": 0.89,
+      "level": "moderate"
+    },
+    "ranking": [
+      {
+        "rank": 1,
+        "app_id": "app.vocalimage.bessia",
+        "title": "Vocal Image: AI Speaking Coach",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/8d/f0/50/8df05063-7f52-c64c-b29e-68338a36da57/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg",
+        "genre": "6017",
+        "rating": 4.51844
+      },
+      {
+        "rank": 2,
+        "app_id": "co.speeko.speek",
+        "title": "Speeko: AI for Public Speaking",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/e3/25/ee/e325ee08-1576-b758-926f-eb4ef31ef4e6/AppIcon-0-1x_U007epad-0-1-0-85-220-0.png/512x512bb.jpg",
+        "genre": "6017",
+        "rating": 4.7317
+      },
+      {
+        "rank": 3,
+        "app_id": "app.ios.orai",
+        "title": "Orai - Improve Public Speaking",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/e8/74/7d/e8747df0-b9ba-59c5-f127-00baf109c3bb/AppIcon-0-0-1x_U007emarketing-0-6-0-85-220.png/512x512bb.jpg",
+        "genre": "6007",
+        "rating": 4.61467
+      },
+      {
+        "rank": 4,
+        "app_id": "com.app.smalltalk",
+        "title": "Communication Skills: PatterAI",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/41/38/89/413889d6-c019-081d-c71a-6293ce7b2216/AppIcon-0-0-1x_U007epad-0-11-0-85-220.png/512x512bb.jpg",
+        "genre": "6017",
+        "rating": 4.43893
+      },
+      {
+        "rank": 5,
+        "app_id": "com.drawingdata.publicspeaking",
+        "title": "Public Speaking Coach",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/75/c5/6e/75c56e60-fde9-5d2f-1a43-beca7175a3e6/AppIcon-0-0-1x_U007epad-0-1-sRGB-85-220.png/512x512bb.jpg",
+        "genre": "6007",
+        "rating": 4.52632
+      },
+      {
+        "rank": 6,
+        "app_id": "xyz.carbonstudio.wellspoken",
+        "title": "Wellspoken: Articulation Coach",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/57/9d/a7/579da7cc-89f8-fc2f-54b3-84cbb15fc4a5/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "genre": "6017",
+        "rating": 4.7512
+      },
+      {
+        "rank": 7,
+        "app_id": "com.babli.babli",
+        "title": "Public Speaking Coach: Babli",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/2e/9a/c3/2e9ac336-18b6-c67b-0216-da07ace60d7e/AppIcon-0-1x_U007epad-0-1-sRGB-85-220-0.png/512x512bb.jpg",
+        "genre": "6017",
+        "rating": 4.68421
+      },
+      {
+        "rank": 8,
+        "app_id": "com.mirrorSpeaker",
+        "title": "MicMentor: Public Speaking",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/a3/14/68/a3146866-687e-4c8b-aaf5-0d8c86ff85cf/AppIcon-0-0-1x_U007epad-0-85-220.png/512x512bb.jpg",
+        "genre": "6017",
+        "rating": 4.2
+      },
+      {
+        "rank": 9,
+        "app_id": "befqih.com.saad.PublicSpeaking",
+        "title": "SpeakVibe: Public Speaking AI",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/9a/0b/f5/9a0bf598-8674-01e2-9ee1-dfdf76630e55/AppIcon-0-0-1x_U007epad-0-1-85-220.png/512x512bb.jpg",
+        "genre": "6017",
+        "rating": 5
+      },
+      {
+        "rank": 10,
+        "app_id": "com.bluehandcoding.speechy",
+        "title": "Speechy - Supercharge Speaking",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/65/8b/f5/658bf5bf-3363-aeb8-aa9e-eda2532942fc/AppIcon-0-0-1x_U007emarketing-0-8-0-sRGB-85-220.png/512x512bb.jpg",
+        "genre": "6007",
+        "rating": 5
+      },
+      {
+        "rank": 11,
+        "app_id": "com.credible.app",
+        "title": "Credible: Speech Coach",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/cf/f4/94/cff49464-c1d2-9f54-7ed7-d17d3e74acb7/AppIcon-0-0-1x_U007ephone-0-1-0-85-220.png/512x512bb.jpg",
+        "genre": "6007",
+        "rating": 4.40506
+      },
+      {
+        "rank": 12,
+        "app_id": "com.aistudy.saynow",
+        "title": "SayNow AI: Speech, Voice Coach",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/ea/9a/7f/ea9a7f8f-286a-4ff5-d942-9343b6a76811/AppIcon-0-0-1x_U007emarketing-0-11-0-0-85-220.png/512x512bb.jpg",
+        "genre": "6017",
+        "rating": 4.66667
+      },
+      {
+        "rank": 13,
+        "app_id": "com.fear2freedom.speakup",
+        "title": "SpeakUp - Public Speaking App",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/19/72/49/197249ec-02d2-d797-fbab-d4e1de7a2c29/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg",
+        "genre": "6017",
+        "rating": 4.7
+      },
+      {
+        "rank": 14,
+        "app_id": "com.riseguide.app",
+        "title": "RiseGuide: Top Expert Insights",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/7c/26/17/7c26170f-2ae5-5884-b24d-5639769d6c8e/AppIcon-0-0-1x_U007emarketing-0-11-0-85-220.png/512x512bb.jpg",
+        "genre": "6017",
+        "rating": 4.60942
+      },
+      {
+        "rank": 15,
+        "app_id": "com.letmespeak.pro",
+        "title": "LetMeSpeak – Learn English",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple126/v4/8b/6d/b8/8b6db8c7-441c-eaeb-b6c6-6533fa172f2e/AppIcon-0-0-1x_U007emarketing-0-7-0-0-85-220.png/512x512bb.jpg",
+        "genre": "6017",
+        "rating": 4.66113
+      },
+      {
+        "rank": 16,
+        "app_id": "com.tariq.speakup",
+        "title": "SpeakUp: Public Speaking Coach",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple221/v4/3e/d9/50/3ed95062-3031-7654-b6fa-7a138d7a4cb4/AppIcon-0-0-1x_U007emarketing-0-11-0-85-220.png/512x512bb.jpg",
+        "genre": "6017",
+        "rating": 0
+      },
+      {
+        "rank": 17,
+        "app_id": "com.mobilephl.learningenglishspeaking",
+        "title": "English Speaking: SpeakFluent",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/84/c9/1c/84c91c8e-ea12-9148-cc6d-6aeb0030d620/AppIcon-0-0-1x_U007emarketing-0-8-0-85-220.png/512x512bb.jpg",
+        "genre": "6018",
+        "rating": 4.66349
+      },
+      {
+        "rank": 18,
+        "app_id": "procypher.ibook.043",
+        "title": "The Art of Public Speaking!",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/b5/43/9a/b5439aa2-176f-4905-ba68-4efbc9829162/AppIcon-0-0-1x_U007emarketing-0-0-0-7-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/512x512bb.jpg",
+        "genre": "6018",
+        "rating": 0
+      },
+      {
+        "rank": 19,
+        "app_id": "com.appspeakup.speakup",
+        "title": "Speak Up - Public Speaking",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/22/1b/00/221b0093-04e1-be80-ec94-1e36e1316c78/AppIcon-0-0-1x_U007emarketing-0-7-0-85-220.png/512x512bb.jpg",
+        "genre": "6017",
+        "rating": 0
+      },
+      {
+        "rank": 20,
+        "app_id": "com.example.speechCreation",
+        "title": "Public Speaking Made simple",
+        "icon": "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/7c/dd/a7/7cdda7f1-3acb-e8e0-34c5-725b3ebd2f58/AppIcon-0-0-1x_U007emarketing-0-7-0-85-220.png/512x512bb.jpg",
+        "genre": "6017",
+        "rating": 0
+      }
+    ],
+    "related_keywords": [
+      {
+        "keyword": "public speaking practice free",
+        "source": "search"
+      },
+      {
+        "keyword": "speaking practice",
+        "source": "keywords"
+      },
+      {
+        "keyword": "speaking eloquently",
+        "source": "keywords"
+      },
+      {
+        "keyword": "speaking email",
+        "source": "keywords"
+      },
+      {
+        "keyword": "speaking translator",
+        "source": "keywords"
+      },
+      {
+        "keyword": "speaking skills",
+        "source": "keywords"
+      },
+      {
+        "keyword": "speaking spanish",
+        "source": "keywords"
+      },
+      {
+        "keyword": "speaking coach",
+        "source": "keywords"
+      },
+      {
+        "keyword": "speaking email carplay",
+        "source": "keywords"
+      },
+      {
+        "keyword": "speak ai",
+        "source": "keywords"
+      }
+    ],
+    "is_tracked": false,
+    "user_tracking": []
+  }
+}
