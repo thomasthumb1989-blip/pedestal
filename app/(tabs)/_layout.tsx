@@ -39,14 +39,15 @@ export default function TabLayout() {
           backgroundColor: colors.surface,
           borderTopColor: colors.border,
           paddingBottom: Math.max(insets.bottom, Spacing.sm),
-          paddingTop: Spacing.xs,
-          height: 56 + Math.max(insets.bottom, Spacing.sm),
+          paddingTop: Spacing.sm,
+          height: 64 + Math.max(insets.bottom, Spacing.sm),
         },
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: '600',
           fontFamily: Platform.select({ ios: 'System', android: 'sans-serif-medium' }),
           marginTop: 2,
+          paddingBottom: 2,
         },
         headerStyle: {
           backgroundColor: colors.background,
