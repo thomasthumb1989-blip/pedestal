@@ -1,0 +1,304 @@
+{
+  "kwData": [
+    {
+      "keyword": "public speaking",
+      "difficulty": 50,
+      "traffic": 41,
+      "kei": {
+        "score": 0.82,
+        "level": "moderate"
+      }
+    },
+    {
+      "keyword": "public speaking coach",
+      "difficulty": 40,
+      "traffic": 38,
+      "kei": {
+        "score": 0.95,
+        "level": "moderate"
+      }
+    },
+    {
+      "keyword": "public speaking ai",
+      "difficulty": 50,
+      "traffic": 39,
+      "kei": {
+        "score": 0.77,
+        "level": "moderate"
+      }
+    },
+    {
+      "keyword": "speaking practice",
+      "difficulty": 38,
+      "traffic": 53,
+      "kei": {
+        "score": 1.4,
+        "level": "good"
+      }
+    },
+    {
+      "keyword": "speech coach",
+      "difficulty": 43,
+      "traffic": 44,
+      "kei": {
+        "score": 1.03,
+        "level": "good"
+      }
+    },
+    {
+      "keyword": "speech practice",
+      "difficulty": 36,
+      "traffic": 45,
+      "kei": {
+        "score": 1.28,
+        "level": "good"
+      }
+    },
+    {
+      "keyword": "presentation practice",
+      "difficulty": 35,
+      "traffic": 42,
+      "kei": {
+        "score": 1.21,
+        "level": "good"
+      }
+    },
+    {
+      "keyword": "speech training",
+      "difficulty": 32,
+      "traffic": 41,
+      "kei": {
+        "score": 1.27,
+        "level": "good"
+      }
+    }
+  ],
+  "top10": [
+    {
+      "name": "Speeko: AI for Public Speaking",
+      "app_id": "co.speeko.speek",
+      "rating": 4.7317,
+      "keywords": [
+        "public speaking",
+        "public speaking coach",
+        "public speaking ai",
+        "speaking practice",
+        "speech coach",
+        "speech practice",
+        "presentation practice",
+        "speech training"
+      ],
+      "positions": [
+        1,
+        1,
+        1,
+        1,
+        2,
+        3,
+        1,
+        4
+      ],
+      "kwCount": 8,
+      "avgPos": "1.8"
+    },
+    {
+      "name": "Orai - Improve Public Speaking",
+      "app_id": "app.ios.orai",
+      "rating": 4.61467,
+      "keywords": [
+        "public speaking",
+        "public speaking coach",
+        "public speaking ai",
+        "speaking practice",
+        "speech coach",
+        "speech practice",
+        "presentation practice",
+        "speech training"
+      ],
+      "positions": [
+        2,
+        6,
+        4,
+        9,
+        6,
+        4,
+        2,
+        6
+      ],
+      "kwCount": 8,
+      "avgPos": "4.9"
+    },
+    {
+      "name": "Vocal Image: AI Speaking Coach",
+      "app_id": "app.vocalimage.bessia",
+      "rating": 4.51844,
+      "keywords": [
+        "public speaking",
+        "public speaking coach",
+        "public speaking ai",
+        "speaking practice",
+        "speech coach",
+        "speech practice",
+        "speech training"
+      ],
+      "positions": [
+        3,
+        2,
+        3,
+        2,
+        3,
+        2,
+        5
+      ],
+      "kwCount": 7,
+      "avgPos": "2.9"
+    },
+    {
+      "name": "Vocabulary - Learn words daily",
+      "app_id": "com.MonkeyTaps.Vocabulary",
+      "rating": 4.78999,
+      "keywords": [
+        "public speaking",
+        "public speaking coach",
+        "public speaking ai",
+        "speaking practice",
+        "speech coach",
+        "speech training"
+      ],
+      "positions": [
+        4,
+        4,
+        18,
+        5,
+        9,
+        8
+      ],
+      "kwCount": 6,
+      "avgPos": "8.0"
+    },
+    {
+      "name": "Communication Skills: PatterAI",
+      "app_id": "com.app.smalltalk",
+      "rating": 4.43893,
+      "keywords": [
+        "public speaking",
+        "public speaking coach",
+        "public speaking ai",
+        "speaking practice",
+        "speech coach",
+        "speech training"
+      ],
+      "positions": [
+        6,
+        7,
+        6,
+        17,
+        10,
+        2
+      ],
+      "kwCount": 6,
+      "avgPos": "8.0"
+    },
+    {
+      "name": "Wellspoken: Articulation Coach",
+      "app_id": "xyz.carbonstudio.wellspoken",
+      "rating": 4.7512,
+      "keywords": [
+        "public speaking",
+        "public speaking coach",
+        "speech coach",
+        "speech practice",
+        "speech training"
+      ],
+      "positions": [
+        7,
+        3,
+        1,
+        9,
+        7
+      ],
+      "kwCount": 5,
+      "avgPos": "5.4"
+    },
+    {
+      "name": "ELSA Speak - English Learning",
+      "app_id": "com.us.nobarriers.elsa-ios",
+      "rating": 4.75331,
+      "keywords": [
+        "public speaking",
+        "public speaking coach",
+        "speaking practice",
+        "speech coach",
+        "speech practice"
+      ],
+      "positions": [
+        13,
+        12,
+        3,
+        5,
+        5
+      ],
+      "kwCount": 5,
+      "avgPos": "7.6"
+    },
+    {
+      "name": "Astound - Voice & Speech Coach",
+      "app_id": "com.astoundthem.astound",
+      "rating": 4.70836,
+      "keywords": [
+        "public speaking",
+        "public speaking coach",
+        "speech coach",
+        "speech practice",
+        "speech training"
+      ],
+      "positions": [
+        11,
+        14,
+        7,
+        6,
+        1
+      ],
+      "kwCount": 5,
+      "avgPos": "7.8"
+    },
+    {
+      "name": "BoldVoice: Accent Training",
+      "app_id": "com.wellocution.iosapp",
+      "rating": 4.81611,
+      "keywords": [
+        "speaking practice",
+        "speech coach",
+        "speech practice",
+        "speech training"
+      ],
+      "positions": [
+        13,
+        4,
+        8,
+        3
+      ],
+      "kwCount": 4,
+      "avgPos": "7.0"
+    },
+    {
+      "name": "Accent Training",
+      "app_id": "com.esappstudio.EnglishAccentTranining",
+      "rating": 4.64886,
+      "keywords": [
+        "speaking practice",
+        "speech coach",
+        "speech practice",
+        "speech training"
+      ],
+      "positions": [
+        11,
+        12,
+        11,
+        12
+      ],
+      "kwCount": 4,
+      "avgPos": "11.5"
+    }
+  ]
+}
