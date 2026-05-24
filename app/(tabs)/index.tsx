@@ -1,14 +1,44 @@
-import { StyleSheet } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+import { useColorScheme } from '@/components/useColorScheme';
+import { Colors, Spacing, Typography } from '@/constants/Colors';
+import { STRINGS } from '@/src/constants/strings';
 
-export default function TabOneScreen() {
+export default function PracticeScreen() {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
+
+  function handleRecordPress() {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  }
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[Typography.h1, styles.appName, { color: colors.text }]}>
+        {STRINGS.APP_NAME}
+      </Text>
+
+      <View style={styles.recordArea}>
+        <Pressable
+          onPress={handleRecordPress}
+          style={({ pressed }) => [
+            styles.recordButton,
+            {
+              backgroundColor: colors.primary,
+              transform: [{ scale: pressed ? 0.95 : 1 }],
+            },
+          ]}
+        >
+          <Ionicons name="mic" size={32} color="#FFFFFF" />
+        </Pressable>
+
+        <Text style={[Typography.body, styles.tapText, { color: colors.textSecondary }]}>
+          {STRINGS.PRACTICE.TAP_TO_START}
+        </Text>
+      </View>
     </View>
   );
 }
@@ -16,16 +46,25 @@ export default function TabOneScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: Spacing.md,
+  },
+  appName: {
+    textAlign: 'center',
+    marginTop: Spacing.xl,
+  },
+  recordArea: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  recordButton: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  tapText: {
+    marginTop: Spacing.lg,
   },
 });

@@ -1,68 +1,109 @@
-import { SymbolView } from 'expo-symbols';
-import { Link, Tabs } from 'expo-router';
-import { Platform, Pressable } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Tabs, router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
-import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { Colors } from '@/constants/Colors';
+import { STRINGS } from '@/src/constants/strings';
+
+const ONBOARDING_KEY = '@pedestal_onboarding_complete';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme];
+  const [checkedOnboarding, setCheckedOnboarding] = useState(false);
+
+  useEffect(() => {
+    AsyncStorage.getItem(ONBOARDING_KEY).then((value) => {
+      if (value !== 'true') {
+        router.replace('/onboarding');
+      }
+      setCheckedOnboarding(true);
+    });
+  }, []);
+
+  if (!checkedOnboarding) return null;
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme].tint,
-        // Disable the static render of the header on web
-        // to prevent a hydration error in React Navigation v6.
-        headerShown: useClientOnlyValue(false, true),
-      }}>
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textTertiary,
+        tabBarShowLabel: true,
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
+        },
+        headerStyle: {
+          backgroundColor: colors.background,
+        },
+        headerTitleStyle: {
+          color: colors.text,
+          fontWeight: '600',
+          fontSize: 18,
+        },
+        headerShadowVisible: false,
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Tab One',
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{
-                ios: 'chevron.left.forwardslash.chevron.right',
-                android: 'code',
-                web: 'code',
-              }}
-              tintColor={color}
-              size={28}
+          title: STRINGS.TABS.PRACTICE,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'mic' : 'mic-outline'}
+              size={24}
+              color={color}
             />
           ),
-          headerRight: () => (
-            <Link href="/modal" asChild>
-              <Pressable style={{ marginRight: 15 }}>
-                {({ pressed }) => (
-                  <SymbolView
-                    name={{ ios: 'info.circle', android: 'info', web: 'info' }}
-                    size={25}
-                    tintColor={Colors[colorScheme].text}
-                    style={{ opacity: pressed ? 0.5 : 1 }}
-                  />
-                )}
-              </Pressable>
-            </Link>
-          ),
+          tabBarLabel: ({ focused }) =>
+            focused ? STRINGS.TABS.PRACTICE : undefined,
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="progress"
         options={{
-          title: 'Tab Two',
-          tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{
-                ios: 'chevron.left.forwardslash.chevron.right',
-                android: 'code',
-                web: 'code',
-              }}
-              tintColor={color}
-              size={28}
+          title: STRINGS.PROGRESS.TITLE,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'bar-chart' : 'bar-chart-outline'}
+              size={24}
+              color={color}
             />
           ),
+          tabBarLabel: ({ focused }) =>
+            focused ? STRINGS.TABS.PROGRESS : undefined,
+        }}
+      />
+      <Tabs.Screen
+        name="learn"
+        options={{
+          title: STRINGS.LEARN.TITLE,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'book' : 'book-outline'}
+              size={24}
+              color={color}
+            />
+          ),
+          tabBarLabel: ({ focused }) =>
+            focused ? STRINGS.TABS.LEARN : undefined,
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: STRINGS.SETTINGS.TITLE,
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons
+              name={focused ? 'settings' : 'settings-outline'}
+              size={24}
+              color={color}
+            />
+          ),
+          tabBarLabel: ({ focused }) =>
+            focused ? STRINGS.TABS.SETTINGS : undefined,
         }}
       />
     </Tabs>

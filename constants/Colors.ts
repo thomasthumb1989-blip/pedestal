@@ -37,6 +37,8 @@ export const Colors = {
   },
 } as const;
 
+export type ColorTheme = (typeof Colors)['light'] | (typeof Colors)['dark'];
+
 export const Spacing = {
   xs: 4,
   sm: 8,
