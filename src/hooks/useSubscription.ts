@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const SUBSCRIPTION_KEY = '@pedestal_subscribed';
+import { STORAGE_KEYS } from '@/src/constants/storageKeys';
+
+const SUBSCRIPTION_KEY = STORAGE_KEYS.SUBSCRIPTION;
 
 export function useSubscription() {
   const [isSubscribed, setIsSubscribed] = useState(false);

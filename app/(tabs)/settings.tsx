@@ -9,9 +9,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useColorScheme } from '@/components/useColorScheme';
 import { Colors, ColorTheme, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
+import { STORAGE_KEYS } from '@/src/constants/storageKeys';
 import { APP_VERSION, BUNDLE_ID } from '@/src/constants/config';
-
-const NOTIFICATIONS_KEY = '@pedestal_notifications';
 
 type SettingsRowProps = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -68,14 +67,14 @@ export default function SettingsScreen() {
   const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    AsyncStorage.getItem(NOTIFICATIONS_KEY).then((value) => {
+    AsyncStorage.getItem(STORAGE_KEYS.NOTIFICATIONS).then((value) => {
       setNotificationsEnabled(value === 'true');
     });
   }, []);
 
   const toggleNotifications = useCallback(async (value: boolean) => {
     setNotificationsEnabled(value);
-    await AsyncStorage.setItem(NOTIFICATIONS_KEY, value ? 'true' : 'false');
+    await AsyncStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, value ? 'true' : 'false');
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }, []);
 
@@ -128,15 +127,15 @@ export default function SettingsScreen() {
   function handleResetOnboarding() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     Alert.alert(
-      'Reset Onboarding?',
-      'This will clear onboarding progress and show the first-launch flow again.',
+      STRINGS.SETTINGS.RESET_ONBOARDING_TITLE,
+      STRINGS.SETTINGS.RESET_ONBOARDING_BODY,
       [
         { text: STRINGS.SETTINGS.CANCEL, style: 'cancel' },
         {
-          text: 'Reset',
+          text: STRINGS.SETTINGS.RESET_CONFIRM,
           style: 'destructive',
           onPress: async () => {
-            await AsyncStorage.removeItem('@pedestal_onboarding_complete');
+            await AsyncStorage.removeItem(STORAGE_KEYS.ONBOARDING);
             router.replace('/onboarding');
           },
         },

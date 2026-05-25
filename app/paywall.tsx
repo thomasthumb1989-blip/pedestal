@@ -10,8 +10,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { HeaderLogo } from '@/components/HeaderLogo';
 import { Colors, ColorTheme, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
-
-const SUBSCRIPTION_KEY = '@pedestal_subscribed';
+import { STORAGE_KEYS } from '@/src/constants/storageKeys';
 
 type PlanId = 'monthly' | 'annual' | 'lifetime';
 
@@ -59,7 +58,7 @@ function PlanCard({ plan, selected, colors, onPress, isRecommended }: PlanCardPr
           zIndex: 1,
         }}>
           <Text style={[Typography.caption, { color: '#FFFFFF', fontWeight: '700', fontSize: 11 }]}>
-            RECOMMENDED
+            {STRINGS.PAYWALL.RECOMMENDED}
           </Text>
         </View>
       )}
@@ -96,7 +95,7 @@ function PlanCard({ plan, selected, colors, onPress, isRecommended }: PlanCardPr
             <Text style={[Typography.body, { color: colors.textSecondary }]}>{plan.price}</Text>
             {plan.id === 'annual' && (
               <Text style={[Typography.caption, { color: colors.success, fontWeight: '600' }]}>
-                Just £2.50/month
+                {STRINGS.PAYWALL.ANNUAL_BREAKDOWN}
               </Text>
             )}
           </View>
@@ -152,7 +151,7 @@ export default function PaywallScreen() {
 
       // Placeholder: simulate success — set subscription flag
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      await AsyncStorage.setItem(SUBSCRIPTION_KEY, 'true');
+      await AsyncStorage.setItem(STORAGE_KEYS.SUBSCRIPTION, 'true');
       router.replace('/(tabs)');
     } catch (e: any) {
       if (e?.userCancelled) {
@@ -232,7 +231,7 @@ export default function PaywallScreen() {
       {/* Social proof */}
       <View style={{ paddingHorizontal: Spacing.lg }}>
         <Text style={[Typography.body, { color: colors.accent, fontWeight: '600', textAlign: 'center', marginTop: Spacing.lg }]}>
-          Join 1,000+ speakers improving their clarity
+          {STRINGS.PAYWALL.SOCIAL_PROOF}
         </Text>
       </View>
 
@@ -254,8 +253,8 @@ export default function PaywallScreen() {
       <View style={styles.ctaSection}>
         {selectedPlan === 'annual' && (
           <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginBottom: Spacing.sm, gap: 8 }}>
-            <Text style={[Typography.body, { color: colors.textTertiary, textDecorationLine: 'line-through' }]}>£4.99/mo</Text>
-            <Text style={[Typography.body, { color: colors.success, fontWeight: '600' }]}>£2.50/mo</Text>
+            <Text style={[Typography.body, { color: colors.textTertiary, textDecorationLine: 'line-through' }]}>{STRINGS.PAYWALL.MONTHLY_COMPARE}</Text>
+            <Text style={[Typography.body, { color: colors.success, fontWeight: '600' }]}>{STRINGS.PAYWALL.ANNUAL_COMPARE}</Text>
           </View>
         )}
         <Pressable

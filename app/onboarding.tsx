@@ -19,10 +19,9 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { HeaderLogo } from '@/components/HeaderLogo';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
+import { STORAGE_KEYS } from '@/src/constants/storageKeys';
 
 const { width } = Dimensions.get('window');
-
-const ONBOARDING_KEY = '@pedestal_onboarding_complete';
 
 type OnboardingSlide = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -143,7 +142,7 @@ export default function OnboardingScreen() {
   });
 
   async function completeOnboarding() {
-    await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+    await AsyncStorage.setItem(STORAGE_KEYS.ONBOARDING, 'true');
     router.replace('/paywall');
   }
 

@@ -9,9 +9,7 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { HeaderLogo } from '@/components/HeaderLogo';
 import { Colors, Spacing } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
-
-const ONBOARDING_KEY = '@pedestal_onboarding_complete';
-const SUBSCRIPTION_KEY = '@pedestal_subscribed';
+import { STORAGE_KEYS } from '@/src/constants/storageKeys';
 
 // Module-level flag: resets on app restart, persists across remounts within session
 let _paywallShownThisSession = false;
@@ -24,14 +22,14 @@ export default function TabLayout() {
 
   useEffect(() => {
     async function init() {
-      const onboarded = await AsyncStorage.getItem(ONBOARDING_KEY);
+      const onboarded = await AsyncStorage.getItem(STORAGE_KEYS.ONBOARDING);
       if (onboarded !== 'true') {
         router.replace('/onboarding');
         setReady(true);
         return;
       }
 
-      const subscribed = await AsyncStorage.getItem(SUBSCRIPTION_KEY);
+      const subscribed = await AsyncStorage.getItem(STORAGE_KEYS.SUBSCRIPTION);
       if (subscribed !== 'true' && !_paywallShownThisSession) {
         _paywallShownThisSession = true;
         router.replace('/paywall');

@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const SESSIONS_KEY = '@pedestal_sessions';
+import { STORAGE_KEYS } from '@/src/constants/storageKeys';
+
+const SESSIONS_KEY = STORAGE_KEYS.SESSIONS;
 
 export type Session = {
   id: string;

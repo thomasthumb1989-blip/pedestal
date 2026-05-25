@@ -120,6 +120,9 @@ export const STRINGS = {
     PRIVACY_POLICY: 'Privacy Policy',
     TERMS: 'Terms of Use',
     RESET_ONBOARDING: 'Reset Onboarding',
+    RESET_ONBOARDING_TITLE: 'Reset Onboarding?',
+    RESET_ONBOARDING_BODY: 'This will clear onboarding progress and show the first-launch flow again.',
+    RESET_CONFIRM: 'Reset',
     DELETE_ACCOUNT: 'Delete All Data',
     DELETE_CONFIRM_TITLE: 'Delete All Data?',
     DELETE_CONFIRM_BODY: 'This will permanently delete all your sessions, progress, and preferences. This cannot be undone.',
@@ -140,8 +143,13 @@ export const STRINGS = {
     ANNUAL_LABEL: 'Annual',
     ANNUAL_PRICE: '£29.99/year',
     ANNUAL_SAVING: 'Save 50%',
+    ANNUAL_BREAKDOWN: 'Just £2.50/month',
     LIFETIME_LABEL: 'Lifetime',
     LIFETIME_PRICE: '£49.99 one-time',
+    RECOMMENDED: 'RECOMMENDED',
+    SOCIAL_PROOF: 'Join 1,000+ speakers improving their clarity',
+    MONTHLY_COMPARE: '£4.99/mo',
+    ANNUAL_COMPARE: '£2.50/mo',
     CTA: 'Try free for 3 days',
     RESTORE: 'Restore Purchases',
     TERMS: 'Cancel anytime. You won\'t be charged until the trial ends.',
@@ -158,6 +166,11 @@ export const STRINGS = {
     GATE_TITLE: 'Start your free trial to begin',
     GATE_BODY: 'Unlock unlimited recordings, AI coaching, and drills with a free trial.',
     GATE_CTA: 'Start Free Trial',
+  },
+
+  NOT_FOUND: {
+    TITLE: 'This screen doesn\'t exist.',
+    LINK: 'Go to home screen!',
   },
 
   ERRORS: {

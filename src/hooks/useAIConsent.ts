@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const AI_CONSENT_KEY = '@pedestal_ai_consent';
+import { STORAGE_KEYS } from '@/src/constants/storageKeys';
+
+const AI_CONSENT_KEY = STORAGE_KEYS.AI_CONSENT;
 
 export function useAIConsent() {
   const [hasConsent, setHasConsent] = useState<boolean | null>(null);
