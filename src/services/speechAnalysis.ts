@@ -8,7 +8,7 @@ const HEDGING_PHRASES = [
   'i guess', 'i suppose', 'perhaps', 'might be', 'could be',
 ];
 
-const MIN_WORDS_FOR_ANALYSIS = 3; // Lowered from 10 for debugging — TODO: restore to 10
+const MIN_WORDS_FOR_ANALYSIS = 10;
 
 export type TipSeverity = 'critical' | 'improvement' | 'positive';
 

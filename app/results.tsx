@@ -247,11 +247,9 @@ export default function ResultsScreen() {
     fillerCount: string;
     fillerPercentage: string;
     totalWords: string;
-    _debug: string;
   }>();
 
   const [showTips, setShowTips] = useState(false);
-  const [showDebug, setShowDebug] = useState(true); // TODO: remove debug overlay
 
   const clarityScore = parseInt(params.clarityScore ?? '0', 10);
   const wpm = parseInt(params.wordsPerMinute ?? '0', 10);
@@ -337,43 +335,6 @@ export default function ResultsScreen() {
         </Text>
         <HeaderLogo size={32} />
       </View>
-
-      {/* DEBUG OVERLAY — TODO: remove before release */}
-      {showDebug && params._debug && (() => {
-        try {
-          const d = JSON.parse(params._debug);
-          const fileSizeKB = d.fileSize ? (d.fileSize / 1024).toFixed(1) : 'unknown';
-          return (
-            <Pressable
-              onPress={() => setShowDebug(false)}
-              style={{
-                margin: Spacing.md,
-                padding: Spacing.md,
-                backgroundColor: '#1a1a2e',
-                borderRadius: BorderRadius.md,
-                borderWidth: 1,
-                borderColor: '#e94560',
-              }}
-            >
-              <Text style={{ color: '#e94560', fontWeight: '700', fontSize: 14, marginBottom: 8 }}>
-                DEBUG (tap to dismiss)
-              </Text>
-              <Text style={{ color: '#fff', fontSize: 12, fontFamily: 'SpaceMono', lineHeight: 20 }}>
-                {`API Key: ${d.apiKeyPresent ? 'YES' : 'NO'} (${d.apiKeyLength} chars)\n`}
-                {`File: ${d.fileExists ? 'EXISTS' : 'MISSING'} | ${fileSizeKB} KB\n`}
-                {`MIME: ${d.mimeType}\n`}
-                {`Whisper Status: ${d.whisperStatus ?? 'N/A'}\n`}
-                {`Word Count: ${d.wordCount}\n`}
-                {`Transcript: "${(d.rawTranscript ?? '').substring(0, 200)}"\n`}
-                {d.error ? `Error: ${d.error}\n` : ''}
-                {`URI: ${d.fileUri?.substring(d.fileUri.length - 40) ?? 'N/A'}`}
-              </Text>
-            </Pressable>
-          );
-        } catch {
-          return null;
-        }
-      })()}
 
       {/* Celebration badge */}
       {clarityScore >= 80 && (

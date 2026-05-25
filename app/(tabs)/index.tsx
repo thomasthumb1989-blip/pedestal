@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
@@ -11,7 +11,7 @@ import { AIConsentModal } from '@/components/AIConsentModal';
 import { PaywallGate } from '@/components/PaywallGate';
 import { Colors, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
-import { transcribeAudio, TranscriptionDebug } from '@/src/services/transcription';
+import { transcribeAudio } from '@/src/services/transcription';
 import { analyzeSpeech } from '@/src/services/speechAnalysis';
 import { useSessionHistory } from '@/src/hooks/useSessionHistory';
 import { useAIConsent } from '@/src/hooks/useAIConsent';
@@ -40,12 +40,6 @@ export default function PracticeScreen() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(0); // 0 = not counting down
-  const [debugLines, setDebugLines] = useState<string[]>([]);
-
-  function addDebug(line: string) {
-    console.log('[DEBUG]', line);
-    setDebugLines((prev) => [...prev, line]);
-  }
 
   const recordingRef = useRef<Audio.Recording | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -184,55 +178,32 @@ export default function PracticeScreen() {
       return;
     }
 
-    setDebugLines([]);
     setIsAnalyzing(true);
-    addDebug(`Recording stopped: ${durationSeconds}s (${durationMs}ms raw)`);
-    addDebug(`Platform: ${Platform.OS}`);
 
     try {
       await recording.stopAndUnloadAsync();
       const uri = recording.getURI();
-      addDebug(`File URI: ${uri ?? 'NULL'}`);
 
       if (!uri) {
-        addDebug('ERROR: No URI from recording');
         setError(STRINGS.ERRORS.RECORDING_FAILED);
         return;
       }
 
-      addDebug('Sending to Whisper API...');
       const result = await transcribeAudio(uri);
-      const d = result.debug;
-      addDebug(`API key present: ${d.apiKeyPresent} (len ${d.apiKeyLength})`);
-      addDebug(`File size: ${d.fileSize != null ? `${d.fileSize} bytes (${Math.round(d.fileSize / 1024)}KB)` : 'unknown'}`);
-      addDebug(`File exists: ${d.fileExists}`);
-      addDebug(`MIME type: ${d.mimeType}`);
-      addDebug(`Whisper status: ${d.whisperStatus}`);
 
       if (!result.ok) {
-        addDebug(`TRANSCRIPTION ERROR: ${result.error}`);
-        if (d.whisperResponseRaw) {
-          addDebug(`Raw response: ${d.whisperResponseRaw.substring(0, 300)}`);
-        }
         setError(result.error);
         return;
       }
 
-      addDebug(`Transcript: "${d.rawTranscript}"`);
-      addDebug(`Word count: ${d.wordCount}`);
-
       const transcriptText = result.text;
       const metrics = analyzeSpeech(transcriptText, durationSeconds);
-      addDebug(`Clarity: ${metrics.clarityScore} | WPM: ${metrics.wordsPerMinute}`);
-      addDebug(`Fillers: ${metrics.fillerCount} | tooShort: ${metrics.tooShort}`);
 
       if (metrics.tooShort) {
-        addDebug(`ERROR: Too few words — ${metrics.totalWords} < 3`);
         setError(STRINGS.ERRORS.RECORDING_TOO_SHORT);
         return;
       }
 
-      addDebug('Saving session...');
       await saveSession({
         durationSeconds,
         clarityScore: metrics.clarityScore,
@@ -242,9 +213,6 @@ export default function PracticeScreen() {
         totalWords: metrics.totalWords,
         transcript: transcriptText,
       });
-
-      addDebug('SUCCESS — navigating to results');
-      const debugStr = JSON.stringify(result.debug);
 
       router.push({
         pathname: '/results',
@@ -256,12 +224,9 @@ export default function PracticeScreen() {
           fillerCount: metrics.fillerCount.toString(),
           fillerPercentage: metrics.fillerPercentage.toString(),
           totalWords: metrics.totalWords.toString(),
-          _debug: debugStr,
         },
       });
-    } catch (e: any) {
-      addDebug(`EXCEPTION: ${e.message}`);
-      addDebug(`Stack: ${e.stack?.substring(0, 200)}`);
+    } catch {
       setError(STRINGS.ERRORS.TRANSCRIPTION_FAILED);
     } finally {
       setIsAnalyzing(false);
@@ -289,17 +254,9 @@ export default function PracticeScreen() {
         playsInSilentModeIOS: true,
       });
 
-      const recordingOptions = Platform.OS === 'web'
-        ? {
-            ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
-            web: {
-              mimeType: 'audio/webm;codecs=opus',
-              bitsPerSecond: 128000,
-            },
-          }
-        : Audio.RecordingOptionsPresets.HIGH_QUALITY;
-
-      const { recording } = await Audio.Recording.createAsync(recordingOptions);
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY,
+      );
       recordingRef.current = recording;
     } catch {
       setCountdown(0);
@@ -360,33 +317,15 @@ export default function PracticeScreen() {
     return <PaywallGate />;
   }
 
-  if (isAnalyzing || debugLines.length > 0) {
+  if (isAnalyzing) {
     return (
-      <View style={[styles.container, { backgroundColor: '#FFFFFF', paddingTop: 60 }]}>
-        <Text style={{ fontSize: 18, fontWeight: '700', color: '#FF0000', marginBottom: 12, textAlign: 'center' }}>
-          🔴 DEBUG PANEL — TEMPORARY
+      <View style={[styles.container, styles.center, { backgroundColor: colors.background }]}>
+        <Animated.View style={{ transform: [{ rotate: spinRotate }] }}>
+          <Ionicons name="sparkles" size={48} color={colors.primary} />
+        </Animated.View>
+        <Text style={[Typography.h3, { color: colors.text, marginTop: Spacing.lg }]}>
+          {STRINGS.PRACTICE.ANALYZING}
         </Text>
-        <ScrollView style={{ flex: 1, paddingHorizontal: 12 }}>
-          {debugLines.map((line, i) => (
-            <Text key={i} style={{ fontFamily: 'monospace', fontSize: 13, color: '#FF0000', marginBottom: 4 }}>
-              {`[${i + 1}] ${line}`}
-            </Text>
-          ))}
-          {isAnalyzing && (
-            <Animated.View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8, transform: [{ rotate: spinRotate }] }}>
-              <Ionicons name="sync" size={20} color="#FF0000" />
-              <Text style={{ color: '#FF0000', marginLeft: 8, fontWeight: '600' }}>Processing...</Text>
-            </Animated.View>
-          )}
-          {!isAnalyzing && debugLines.length > 0 && (
-            <Pressable
-              onPress={() => setDebugLines([])}
-              style={{ marginTop: 16, padding: 12, backgroundColor: '#FF0000', borderRadius: 8, alignItems: 'center' }}
-            >
-              <Text style={{ color: '#FFFFFF', fontWeight: '700' }}>Dismiss Debug Panel</Text>
-            </Pressable>
-          )}
-        </ScrollView>
       </View>
     );
   }
