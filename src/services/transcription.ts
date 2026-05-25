@@ -79,6 +79,14 @@ export async function transcribeAudio(fileUri: string): Promise<TranscriptionRes
     const blob = await fileResponse.blob();
     debug.fileSize = blob.size;
     console.log('[TRANSCRIBE] Blob size:', blob.size, 'bytes | type:', blob.type);
+
+    // Detect suspiciously small blobs (likely silent/empty recording)
+    if (blob.size < 1000) {
+      debug.error = `Recording appears silent — blob only ${blob.size} bytes. Check microphone permission.`;
+      console.log('[TRANSCRIBE] ERROR: Blob too small, likely silent');
+      return { ok: false, error: debug.error ?? 'Unknown error', debug };
+    }
+
     formData.append('file', blob, 'recording.webm');
   } else {
     // Use audio/mp4 (correct MIME for m4a) instead of audio/m4a

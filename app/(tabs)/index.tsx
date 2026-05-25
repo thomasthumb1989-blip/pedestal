@@ -233,7 +233,7 @@ export default function PracticeScreen() {
       const result = await transcribeAudio(uri);
       const d = result.debug;
       addDebug(`API key present: ${d.apiKeyPresent} (len ${d.apiKeyLength})`);
-      addDebug(`File size: ${d.fileSize ?? 'unknown'} bytes`);
+      addDebug(`File size: ${d.fileSize != null ? `${d.fileSize} bytes (${Math.round(d.fileSize / 1024)}KB)` : 'unknown'}`);
       addDebug(`File exists: ${d.fileExists}`);
       addDebug(`MIME type: ${d.mimeType}`);
       addDebug(`Whisper status: ${d.whisperStatus}`);
