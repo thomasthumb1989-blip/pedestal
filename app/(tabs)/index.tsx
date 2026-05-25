@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Animated, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
@@ -156,9 +156,17 @@ export default function PracticeScreen() {
         playsInSilentModeIOS: true,
       });
 
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY,
-      );
+      const recordingOptions = Platform.OS === 'web'
+        ? {
+            ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
+            web: {
+              mimeType: 'audio/webm;codecs=opus',
+              bitsPerSecond: 128000,
+            },
+          }
+        : Audio.RecordingOptionsPresets.HIGH_QUALITY;
+
+      const { recording } = await Audio.Recording.createAsync(recordingOptions);
       recordingRef.current = recording;
       setCountdown(0);
       setIsRecording(true);
@@ -208,6 +216,7 @@ export default function PracticeScreen() {
     setDebugLines([]);
     setIsAnalyzing(true);
     addDebug(`Recording stopped: ${durationSeconds}s (${durationMs}ms raw)`);
+    addDebug(`Platform: ${Platform.OS}`);
 
     try {
       await recording.stopAndUnloadAsync();
