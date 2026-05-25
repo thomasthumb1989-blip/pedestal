@@ -141,52 +141,23 @@ export default function PracticeScreen() {
     };
   }, []);
 
-  async function startRecording() {
-    setError(null);
-    try {
-      const permission = await Audio.requestPermissionsAsync();
-      if (!permission.granted) {
-        setCountdown(0);
-        setError('Microphone permission required');
-        return;
-      }
+  /** Called when countdown reaches 0 — recording is already running */
+  function finishCountdown() {
+    setCountdown(0);
+    setIsRecording(true);
+    setElapsed(0);
 
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
+    timerRef.current = setInterval(() => {
+      setElapsed((prev) => {
+        if (prev + 1 >= MAX_DURATION) {
+          stopRecording();
+          return MAX_DURATION;
+        }
+        return prev + 1;
       });
+    }, 1000);
 
-      const recordingOptions = Platform.OS === 'web'
-        ? {
-            ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
-            web: {
-              mimeType: 'audio/webm;codecs=opus',
-              bitsPerSecond: 128000,
-            },
-          }
-        : Audio.RecordingOptionsPresets.HIGH_QUALITY;
-
-      const { recording } = await Audio.Recording.createAsync(recordingOptions);
-      recordingRef.current = recording;
-      setCountdown(0);
-      setIsRecording(true);
-      setElapsed(0);
-
-      timerRef.current = setInterval(() => {
-        setElapsed((prev) => {
-          if (prev + 1 >= MAX_DURATION) {
-            stopRecording();
-            return MAX_DURATION;
-          }
-          return prev + 1;
-        });
-      }, 1000);
-
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    } catch {
-      setCountdown(0);
-      setError(STRINGS.ERRORS.RECORDING_FAILED);
-    }
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
   }
 
   async function stopRecording() {
@@ -297,19 +268,52 @@ export default function PracticeScreen() {
     }
   }
 
-  function startCountdown() {
+  async function startCountdown() {
     if (!requireConsent()) return;
     setError(null);
     setCountdown(COUNTDOWN_SECONDS);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    // Start recording NOW so MediaRecorder is warm by the time countdown ends.
+    // Countdown is purely visual — mic is already live.
+    try {
+      const permission = await Audio.requestPermissionsAsync();
+      if (!permission.granted) {
+        setCountdown(0);
+        setError('Microphone permission required');
+        return;
+      }
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      const recordingOptions = Platform.OS === 'web'
+        ? {
+            ...Audio.RecordingOptionsPresets.HIGH_QUALITY,
+            web: {
+              mimeType: 'audio/webm;codecs=opus',
+              bitsPerSecond: 128000,
+            },
+          }
+        : Audio.RecordingOptionsPresets.HIGH_QUALITY;
+
+      const { recording } = await Audio.Recording.createAsync(recordingOptions);
+      recordingRef.current = recording;
+    } catch {
+      setCountdown(0);
+      setError(STRINGS.ERRORS.RECORDING_FAILED);
+      return;
+    }
 
     countdownRef.current = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           if (countdownRef.current) clearInterval(countdownRef.current);
           countdownRef.current = null;
-          // Keep countdown at 1 to prevent idle flash — startRecording clears it
-          startRecording();
+          // Recording already running — just switch to recording UI
+          finishCountdown();
           return prev;
         }
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -318,10 +322,17 @@ export default function PracticeScreen() {
     }, 1000);
   }
 
-  function cancelCountdown() {
+  async function cancelCountdown() {
     if (countdownRef.current) {
       clearInterval(countdownRef.current);
       countdownRef.current = null;
+    }
+    // Stop early recording that was started during countdown
+    if (recordingRef.current) {
+      try {
+        await recordingRef.current.stopAndUnloadAsync();
+      } catch { /* ignore */ }
+      recordingRef.current = null;
     }
     setCountdown(0);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
