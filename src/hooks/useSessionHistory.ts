@@ -17,6 +17,8 @@ export type Session = {
   transcript: string;
   impromptu?: boolean;
   topic?: string;
+  drill?: boolean;
+  drillName?: string;
 };
 
 export function useSessionHistory() {

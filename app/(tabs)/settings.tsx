@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Linking, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Linking, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
-import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
@@ -61,7 +60,6 @@ export default function SettingsScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
-  const router = useRouter();
 
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [restoreMessage, setRestoreMessage] = useState<string | null>(null);
@@ -122,25 +120,6 @@ export default function SettingsScreen() {
       default: `https://play.google.com/store/apps/details?id=${BUNDLE_ID}`,
     });
     Linking.openURL(url);
-  }
-
-  function handleDeleteAccount() {
-    Alert.alert(
-      STRINGS.SETTINGS.DELETE_CONFIRM_TITLE,
-      STRINGS.SETTINGS.DELETE_CONFIRM_BODY,
-      [
-        { text: STRINGS.SETTINGS.CANCEL, style: 'cancel' },
-        {
-          text: STRINGS.SETTINGS.DELETE_CONFIRM,
-          style: 'destructive',
-          onPress: async () => {
-            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-            await AsyncStorage.clear();
-            router.replace('/onboarding');
-          },
-        },
-      ],
-    );
   }
 
   return (
@@ -227,23 +206,6 @@ export default function SettingsScreen() {
           icon="document-text-outline"
           label={STRINGS.SETTINGS.TERMS}
           onPress={handleTerms}
-          colors={colors}
-        />
-      </View>
-
-      {/* Danger Zone */}
-      <View style={[styles.card, { backgroundColor: colors.error + '08', borderWidth: 1, borderColor: colors.error + '20' }, Shadows.card]}>
-        <View style={styles.sectionTitleRow}>
-          <Ionicons name="warning-outline" size={14} color={colors.error} />
-          <Text style={[Typography.caption, styles.sectionTitle, { color: colors.error }]}>
-            {STRINGS.SETTINGS.DANGER}
-          </Text>
-        </View>
-        <SettingsRow
-          icon="trash-outline"
-          label={STRINGS.SETTINGS.DELETE_ACCOUNT}
-          onPress={handleDeleteAccount}
-          destructive
           colors={colors}
         />
       </View>

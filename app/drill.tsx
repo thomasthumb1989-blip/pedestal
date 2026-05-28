@@ -18,6 +18,7 @@ import { analyzeSpeech, SpeechMetrics } from '@/src/services/speechAnalysis';
 import { useAIConsent } from '@/src/hooks/useAIConsent';
 import { useSubscription } from '@/src/hooks/useSubscription';
 import { useFreeSessionLimit } from '@/src/hooks/useFreeSessionLimit';
+import { useSessionHistory } from '@/src/hooks/useSessionHistory';
 
 const MIN_DURATION = 5;
 const MAX_DURATION = 120;
@@ -77,6 +78,7 @@ export default function DrillScreen() {
   const { requireConsent, showModal, grantConsent, setShowModal } = useAIConsent();
   const { isSubscribed, isLoading: subLoading } = useSubscription();
   const { hasReachedLimit, incrementSessionCount, isLoading: limitLoading } = useFreeSessionLimit();
+  const { saveSession } = useSessionHistory();
 
   const [isRecording, setIsRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -202,6 +204,18 @@ export default function DrillScreen() {
 
       const value = getMetricValue(metrics, drill!.targetMetric);
       const passed = checkPassed(drill!, value);
+
+      await saveSession({
+        durationSeconds,
+        clarityScore: metrics.clarityScore,
+        wordsPerMinute: metrics.wordsPerMinute,
+        fillerCount: metrics.fillerCount,
+        fillerPercentage: metrics.fillerPercentage,
+        totalWords: metrics.totalWords,
+        transcript: transcriptionResult.text,
+        drill: true,
+        drillName: drill!.title,
+      });
 
       if (!isSubscribed) {
         await incrementSessionCount();

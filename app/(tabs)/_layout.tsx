@@ -3,6 +3,7 @@ import { Platform } from 'react-native';
 import { Tabs, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as StoreReview from 'expo-store-review';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
@@ -10,6 +11,36 @@ import { HeaderLogo } from '@/components/HeaderLogo';
 import { Colors, Spacing } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 import { STORAGE_KEYS } from '@/src/constants/storageKeys';
+
+// Resets on app kill/reopen — paywall shows once per launch, not in a loop
+let _paywallShownThisSession = false;
+
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+async function maybePromptReview() {
+  try {
+    const alreadyPrompted = await AsyncStorage.getItem(STORAGE_KEYS.REVIEW_PROMPTED);
+    if (alreadyPrompted === 'true') return;
+
+    let firstSubDate = await AsyncStorage.getItem(STORAGE_KEYS.FIRST_SUBSCRIBED_DATE);
+    if (!firstSubDate) {
+      firstSubDate = new Date().toISOString();
+      await AsyncStorage.setItem(STORAGE_KEYS.FIRST_SUBSCRIBED_DATE, firstSubDate);
+      return;
+    }
+
+    const elapsed = Date.now() - new Date(firstSubDate).getTime();
+    if (elapsed >= SEVEN_DAYS_MS) {
+      const isAvailable = await StoreReview.isAvailableAsync();
+      if (isAvailable) {
+        await StoreReview.requestReview();
+        await AsyncStorage.setItem(STORAGE_KEYS.REVIEW_PROMPTED, 'true');
+      }
+    }
+  } catch {
+    // Silent — review prompt is non-critical
+  }
+}
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
@@ -27,12 +58,22 @@ export default function TabLayout() {
       }
 
       const subscribed = await AsyncStorage.getItem(STORAGE_KEYS.SUBSCRIPTION);
-      if (subscribed !== 'true') {
+      if (subscribed === 'true') {
+        // Subscriber — full access, maybe prompt review
+        maybePromptReview();
+        setReady(true);
+        return;
+      }
+
+      // Not subscribed — show paywall once per launch
+      if (!_paywallShownThisSession) {
+        _paywallShownThisSession = true;
         router.replace('/paywall');
         setReady(true);
         return;
       }
 
+      // Paywall already shown this session — let user into limited tabs
       setReady(true);
     }
     init();
