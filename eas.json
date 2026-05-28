@@ -16,6 +16,7 @@
     },
     "preview": {
       "developmentClient": false,
+      "autoIncrement": true,
       "ios": {
         "distribution": "store",
         "simulator": false
