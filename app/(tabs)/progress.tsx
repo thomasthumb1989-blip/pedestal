@@ -6,9 +6,11 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { PaywallGate } from '@/components/PaywallGate';
 import { Colors, ColorTheme, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 import { useSessionHistory, Session } from '@/src/hooks/useSessionHistory';
+import { useSubscription } from '@/src/hooks/useSubscription';
 
 function formatPracticeTime(totalSeconds: number): string {
   if (totalSeconds < 60) return `${totalSeconds}s`;
@@ -350,6 +352,7 @@ export default function ProgressScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { sessions, loading } = useSessionHistory();
+  const { isSubscribed, isLoading: subLoading } = useSubscription();
 
   // Staggered fade-in for stat cards
   const statAnims = [
@@ -399,6 +402,10 @@ export default function ProgressScreen() {
       Animated.parallel(animations).start();
     }
   }, [sessions.length > 0]);
+
+  if (!subLoading && !isSubscribed) {
+    return <PaywallGate />;
+  }
 
   if (loading) {
     return (

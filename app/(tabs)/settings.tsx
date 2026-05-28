@@ -124,25 +124,6 @@ export default function SettingsScreen() {
     Linking.openURL(url);
   }
 
-  function handleResetOnboarding() {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    Alert.alert(
-      STRINGS.SETTINGS.RESET_ONBOARDING_TITLE,
-      STRINGS.SETTINGS.RESET_ONBOARDING_BODY,
-      [
-        { text: STRINGS.SETTINGS.CANCEL, style: 'cancel' },
-        {
-          text: STRINGS.SETTINGS.RESET_CONFIRM,
-          style: 'destructive',
-          onPress: async () => {
-            await AsyncStorage.removeItem(STORAGE_KEYS.ONBOARDING);
-            router.replace('/onboarding');
-          },
-        },
-      ],
-    );
-  }
-
   function handleDeleteAccount() {
     Alert.alert(
       STRINGS.SETTINGS.DELETE_CONFIRM_TITLE,
@@ -258,14 +239,6 @@ export default function SettingsScreen() {
             {STRINGS.SETTINGS.DANGER}
           </Text>
         </View>
-        <SettingsRow
-          icon="refresh-outline"
-          label={STRINGS.SETTINGS.RESET_ONBOARDING}
-          onPress={handleResetOnboarding}
-          destructive
-          colors={colors}
-        />
-        <View style={[styles.divider, { backgroundColor: colors.error + '20' }]} />
         <SettingsRow
           icon="trash-outline"
           label={STRINGS.SETTINGS.DELETE_ACCOUNT}

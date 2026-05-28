@@ -35,7 +35,7 @@ export default function PracticeScreen() {
   const { saveSession } = useSessionHistory();
   const { requireConsent, showModal, grantConsent, setShowModal } = useAIConsent();
   const { isSubscribed, isLoading: subLoading } = useSubscription();
-  const { hasReachedLimit, incrementSessionCount, isLoading: limitLoading } = useFreeSessionLimit();
+  const { sessionCount, hasReachedLimit, incrementSessionCount, isLoading: limitLoading } = useFreeSessionLimit();
 
   const [isRecording, setIsRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -312,6 +312,8 @@ export default function PracticeScreen() {
     outputRange: ['0deg', '360deg'],
   });
 
+  const sessionsRemaining = 3 - (hasReachedLimit ? 3 : Math.min(sessionCount, 3));
+
   if (!subLoading && !limitLoading && !isSubscribed && hasReachedLimit) {
     return <PaywallGate />;
   }
@@ -369,6 +371,15 @@ export default function PracticeScreen() {
       <Text style={[Typography.h1, styles.appName, { color: colors.text }]}>
         {STRINGS.APP_NAME}
       </Text>
+
+      {!isSubscribed && !subLoading && !limitLoading && sessionsRemaining > 0 && (
+        <View style={[styles.freeBanner, { backgroundColor: colors.accent + '15' }]}>
+          <Ionicons name="gift-outline" size={16} color={colors.accent} />
+          <Text style={[Typography.caption, { color: colors.accent, fontWeight: '600', marginLeft: Spacing.xs }]}>
+            {sessionsRemaining} {STRINGS.PRACTICE.FREE_SESSIONS_REMAINING}
+          </Text>
+        </View>
+      )}
 
       {!isRecording && countdown === 0 && (
         <Pressable
@@ -528,6 +539,15 @@ const styles = StyleSheet.create({
   appName: {
     textAlign: 'center',
     marginTop: Spacing.xl,
+  },
+  freeBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.sm,
+    marginTop: Spacing.sm,
   },
   recordArea: {
     flex: 1,

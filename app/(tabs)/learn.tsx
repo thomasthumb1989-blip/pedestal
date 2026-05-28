@@ -6,8 +6,10 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { PaywallGate } from '@/components/PaywallGate';
 import { Colors, ColorTheme, Spacing, BorderRadius, Typography, Shadows } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
+import { useSubscription } from '@/src/hooks/useSubscription';
 import { DRILL_CATEGORIES, getDrillsByCategory, DrillCategoryInfo, DrillDifficulty } from '@/src/constants/drills';
 
 function difficultyColor(difficulty: DrillDifficulty, colors: ColorTheme): string {
@@ -98,6 +100,7 @@ export default function LearnScreen() {
   const colors = Colors[colorScheme];
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { isSubscribed, isLoading: subLoading } = useSubscription();
 
   const fadeAnims = useRef(
     DRILL_CATEGORIES.map(() => new Animated.Value(0))
@@ -124,6 +127,10 @@ export default function LearnScreen() {
       }, i * 120);
     });
   }, []);
+
+  if (!subLoading && !isSubscribed) {
+    return <PaywallGate />;
+  }
 
   return (
     <ScrollView

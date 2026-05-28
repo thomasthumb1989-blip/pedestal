@@ -11,9 +11,6 @@ import { Colors, Spacing } from '@/constants/Colors';
 import { STRINGS } from '@/src/constants/strings';
 import { STORAGE_KEYS } from '@/src/constants/storageKeys';
 
-// Module-level flag: resets on app restart, persists across remounts within session
-let _paywallShownThisSession = false;
-
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme];
@@ -30,8 +27,7 @@ export default function TabLayout() {
       }
 
       const subscribed = await AsyncStorage.getItem(STORAGE_KEYS.SUBSCRIPTION);
-      if (subscribed !== 'true' && !_paywallShownThisSession) {
-        _paywallShownThisSession = true;
+      if (subscribed !== 'true') {
         router.replace('/paywall');
         setReady(true);
         return;
