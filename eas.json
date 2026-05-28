@@ -15,12 +15,13 @@
       }
     },
     "preview": {
-      "distribution": "internal",
       "developmentClient": false,
       "ios": {
+        "distribution": "store",
         "simulator": false
       },
       "android": {
+        "distribution": "internal",
         "buildType": "apk"
       }
     },
