@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
+import { useAudioRecorder, RecordingPresets, requestRecordingPermissionsAsync, setAudioModeAsync } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 
@@ -41,7 +41,7 @@ export default function PracticeScreen() {
   const [error, setError] = useState<string | null>(null);
   const [countdown, setCountdown] = useState(0); // 0 = not counting down
 
-  const recordingRef = useRef<Audio.Recording | null>(null);
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -155,7 +155,7 @@ export default function PracticeScreen() {
   }
 
   async function stopRecording() {
-    if (!recordingRef.current) return;
+    if (!recorder.isRecording) return;
 
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -164,16 +164,12 @@ export default function PracticeScreen() {
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-    const recording = recordingRef.current;
-    recordingRef.current = null;
     setIsRecording(false);
 
-    const status = await recording.getStatusAsync();
-    const durationMs = status.durationMillis ?? 0;
-    const durationSeconds = Math.round(durationMs / 1000);
+    const durationSeconds = Math.round(recorder.currentTime);
 
     if (durationSeconds < MIN_DURATION) {
-      await recording.stopAndUnloadAsync();
+      await recorder.stop();
       setError(STRINGS.PRACTICE.MIN_DURATION);
       return;
     }
@@ -181,8 +177,8 @@ export default function PracticeScreen() {
     setIsAnalyzing(true);
 
     try {
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
+      await recorder.stop();
+      const uri = recorder.uri;
 
       if (!uri) {
         setError(STRINGS.ERRORS.RECORDING_FAILED);
@@ -242,22 +238,20 @@ export default function PracticeScreen() {
     // Start recording NOW so MediaRecorder is warm by the time countdown ends.
     // Countdown is purely visual — mic is already live.
     try {
-      const permission = await Audio.requestPermissionsAsync();
+      const permission = await requestRecordingPermissionsAsync();
       if (!permission.granted) {
         setCountdown(0);
         setError('Microphone permission required');
         return;
       }
 
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
+      await setAudioModeAsync({
+        allowsRecording: true,
+        playsInSilentMode: true,
       });
 
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY,
-      );
-      recordingRef.current = recording;
+      await recorder.prepareToRecordAsync();
+      recorder.record();
     } catch {
       setCountdown(0);
       setError(STRINGS.ERRORS.RECORDING_FAILED);
@@ -285,11 +279,10 @@ export default function PracticeScreen() {
       countdownRef.current = null;
     }
     // Stop early recording that was started during countdown
-    if (recordingRef.current) {
+    if (recorder.isRecording) {
       try {
-        await recordingRef.current.stopAndUnloadAsync();
+        await recorder.stop();
       } catch { /* ignore */ }
-      recordingRef.current = null;
     }
     setCountdown(0);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

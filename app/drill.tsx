@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Audio } from 'expo-av';
+import { useAudioRecorder, RecordingPresets, requestRecordingPermissionsAsync, setAudioModeAsync } from 'expo-audio';
 import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -82,7 +82,7 @@ export default function DrillScreen() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ metrics: SpeechMetrics; passed: boolean } | null>(null);
 
-  const recordingRef = useRef<Audio.Recording | null>(null);
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -123,18 +123,16 @@ export default function DrillScreen() {
     setError(null);
     setResult(null);
     try {
-      const permission = await Audio.requestPermissionsAsync();
+      const permission = await requestRecordingPermissionsAsync();
       if (!permission.granted) {
         setError('Microphone permission required');
         return;
       }
 
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+      await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
 
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY,
-      );
-      recordingRef.current = recording;
+      await recorder.prepareToRecordAsync();
+      recorder.record();
       setIsRecording(true);
       setElapsed(0);
 
@@ -155,7 +153,7 @@ export default function DrillScreen() {
   }
 
   async function stopRecording() {
-    if (!recordingRef.current) return;
+    if (!recorder.isRecording) return;
 
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -164,16 +162,12 @@ export default function DrillScreen() {
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-    const recording = recordingRef.current;
-    recordingRef.current = null;
     setIsRecording(false);
 
-    const status = await recording.getStatusAsync();
-    const durationMs = status.durationMillis ?? 0;
-    const durationSeconds = Math.round(durationMs / 1000);
+    const durationSeconds = Math.round(recorder.currentTime);
 
     if (durationSeconds < MIN_DURATION) {
-      await recording.stopAndUnloadAsync();
+      await recorder.stop();
       setError(STRINGS.DRILL.MIN_DURATION);
       return;
     }
@@ -181,8 +175,8 @@ export default function DrillScreen() {
     setIsAnalyzing(true);
 
     try {
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
+      await recorder.stop();
+      const uri = recorder.uri;
       if (!uri) {
         setError(STRINGS.ERRORS.RECORDING_FAILED);
         setIsAnalyzing(false);
