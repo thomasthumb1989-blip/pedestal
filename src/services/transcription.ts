@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import * as FileSystem from 'expo-file-system';
+import { uploadAsync, FileSystemUploadType } from 'expo-file-system/legacy';
 
 import { OPENAI_API_KEY } from '@/src/constants/config';
 
@@ -61,45 +62,54 @@ export async function transcribeAudio(fileUri: string): Promise<TranscriptionRes
     // File info check not critical — continue with transcription
   }
 
-  const formData = new FormData();
-
-  if (Platform.OS === 'web') {
-    debug.mimeType = 'audio/webm';
-    const fileResponse = await fetch(fileUri);
-    const blob = await fileResponse.blob();
-    debug.fileSize = blob.size;
-    formData.append('file', blob, 'recording.webm');
-  } else {
-    // Use audio/mp4 (correct MIME for m4a) instead of audio/m4a
-    debug.mimeType = 'audio/mp4';
-    formData.append('file', {
-      uri: fileUri,
-      type: 'audio/mp4',
-      name: 'recording.m4a',
-    } as any);
-  }
-
-  formData.append('model', 'whisper-1');
-  formData.append('language', 'en');
-
   try {
-    const startTime = Date.now();
-    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: formData,
-    });
-    const elapsed = Date.now() - startTime;
+    let responseText: string;
+    let statusCode: number;
 
-    debug.whisperStatus = response.status;
+    if (Platform.OS === 'web') {
+      // Web: use fetch + blob (works fine)
+      debug.mimeType = 'audio/webm';
+      const formData = new FormData();
+      const fileResponse = await fetch(fileUri);
+      const blob = await fileResponse.blob();
+      debug.fileSize = blob.size;
+      formData.append('file', blob, 'recording.webm');
+      formData.append('model', 'whisper-1');
+      formData.append('language', 'en');
 
-    const responseText = await response.text();
+      const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${OPENAI_API_KEY}` },
+        body: formData,
+      });
+
+      statusCode = response.status;
+      responseText = await response.text();
+    } else {
+      // Native (iOS/Android): use FileSystem.uploadAsync to avoid FormData issues
+      debug.mimeType = 'audio/mp4';
+      const uploadResult = await uploadAsync(
+        'https://api.openai.com/v1/audio/transcriptions',
+        fileUri,
+        {
+          httpMethod: 'POST',
+          uploadType: FileSystemUploadType.MULTIPART,
+          fieldName: 'file',
+          mimeType: 'audio/mp4',
+          parameters: { model: 'whisper-1', language: 'en' },
+          headers: { Authorization: `Bearer ${OPENAI_API_KEY}` },
+        },
+      );
+
+      statusCode = uploadResult.status;
+      responseText = uploadResult.body;
+    }
+
+    debug.whisperStatus = statusCode;
     debug.whisperResponseRaw = responseText;
 
-    if (!response.ok) {
-      debug.error = `Transcription failed (${response.status}): ${responseText}`;
+    if (statusCode < 200 || statusCode >= 300) {
+      debug.error = `Transcription failed (${statusCode}): ${responseText}`;
       return { ok: false, error: debug.error ?? 'Unknown error', debug };
     }
 
