@@ -117,7 +117,7 @@ export default function SettingsScreen() {
 
   function handleRateApp() {
     const url = Platform.select({
-      ios: `https://apps.apple.com/app/id0000000000?action=write-review`, // Replace with real App Store ID
+      ios: `https://apps.apple.com/app/id6772830210?action=write-review`,
       android: `market://details?id=${BUNDLE_ID}`,
       default: `https://play.google.com/store/apps/details?id=${BUNDLE_ID}`,
     });

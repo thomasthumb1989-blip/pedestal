@@ -18,6 +18,7 @@ import { analyzeSpeech } from '@/src/services/speechAnalysis';
 import { useSessionHistory } from '@/src/hooks/useSessionHistory';
 import { useAIConsent } from '@/src/hooks/useAIConsent';
 import { useSubscription } from '@/src/hooks/useSubscription';
+import { useFreeSessionLimit } from '@/src/hooks/useFreeSessionLimit';
 
 const THINK_TIME = 10;
 const MIN_DURATION = 5;
@@ -39,6 +40,7 @@ export default function ImpromptuScreen() {
   const { saveSession } = useSessionHistory();
   const { requireConsent, showModal, grantConsent, setShowModal } = useAIConsent();
   const { isSubscribed, isLoading: subLoading } = useSubscription();
+  const { hasReachedLimit, incrementSessionCount, isLoading: limitLoading } = useFreeSessionLimit();
 
   const [topic, setTopic] = useState<Topic>(() => getRandomTopic());
   const [phase, setPhase] = useState<Phase>('topic');
@@ -197,6 +199,10 @@ export default function ImpromptuScreen() {
         topic: topic.prompt,
       });
 
+      if (!isSubscribed) {
+        await incrementSessionCount();
+      }
+
       router.replace({
         pathname: '/results',
         params: {
@@ -216,7 +222,7 @@ export default function ImpromptuScreen() {
   }
 
   // ── Paywall Gate ──
-  if (!subLoading && !isSubscribed) {
+  if (!subLoading && !limitLoading && !isSubscribed && hasReachedLimit) {
     return <PaywallGate />;
   }
 

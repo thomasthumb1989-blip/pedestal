@@ -8,4 +8,5 @@ export const STORAGE_KEYS = {
   AI_CONSENT: '@pedestal_ai_consent',
   SESSIONS: '@pedestal_sessions',
   NOTIFICATIONS: '@pedestal_notifications',
+  FREE_SESSION_COUNT: '@pedestal_free_session_count',
 } as const;

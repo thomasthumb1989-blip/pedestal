@@ -16,6 +16,7 @@ import { analyzeSpeech } from '@/src/services/speechAnalysis';
 import { useSessionHistory } from '@/src/hooks/useSessionHistory';
 import { useAIConsent } from '@/src/hooks/useAIConsent';
 import { useSubscription } from '@/src/hooks/useSubscription';
+import { useFreeSessionLimit } from '@/src/hooks/useFreeSessionLimit';
 
 const MIN_DURATION = 5;
 const MAX_DURATION = 300;
@@ -34,6 +35,7 @@ export default function PracticeScreen() {
   const { saveSession } = useSessionHistory();
   const { requireConsent, showModal, grantConsent, setShowModal } = useAIConsent();
   const { isSubscribed, isLoading: subLoading } = useSubscription();
+  const { hasReachedLimit, incrementSessionCount, isLoading: limitLoading } = useFreeSessionLimit();
 
   const [isRecording, setIsRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -210,6 +212,10 @@ export default function PracticeScreen() {
         transcript: transcriptText,
       });
 
+      if (!isSubscribed) {
+        await incrementSessionCount();
+      }
+
       router.push({
         pathname: '/results',
         params: {
@@ -306,7 +312,7 @@ export default function PracticeScreen() {
     outputRange: ['0deg', '360deg'],
   });
 
-  if (!subLoading && !isSubscribed) {
+  if (!subLoading && !limitLoading && !isSubscribed && hasReachedLimit) {
     return <PaywallGate />;
   }
 

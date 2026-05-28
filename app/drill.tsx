@@ -17,6 +17,7 @@ import { transcribeAudio } from '@/src/services/transcription';
 import { analyzeSpeech, SpeechMetrics } from '@/src/services/speechAnalysis';
 import { useAIConsent } from '@/src/hooks/useAIConsent';
 import { useSubscription } from '@/src/hooks/useSubscription';
+import { useFreeSessionLimit } from '@/src/hooks/useFreeSessionLimit';
 
 const MIN_DURATION = 5;
 const MAX_DURATION = 120;
@@ -75,6 +76,7 @@ export default function DrillScreen() {
   const drill = getDrillById(drillId ?? '');
   const { requireConsent, showModal, grantConsent, setShowModal } = useAIConsent();
   const { isSubscribed, isLoading: subLoading } = useSubscription();
+  const { hasReachedLimit, incrementSessionCount, isLoading: limitLoading } = useFreeSessionLimit();
 
   const [isRecording, setIsRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -107,7 +109,7 @@ export default function DrillScreen() {
     };
   }, []);
 
-  if (!subLoading && !isSubscribed) {
+  if (!subLoading && !limitLoading && !isSubscribed && hasReachedLimit) {
     return <PaywallGate />;
   }
 
@@ -200,6 +202,10 @@ export default function DrillScreen() {
 
       const value = getMetricValue(metrics, drill!.targetMetric);
       const passed = checkPassed(drill!, value);
+
+      if (!isSubscribed) {
+        await incrementSessionCount();
+      }
 
       setResult({ metrics, passed });
     } catch {
