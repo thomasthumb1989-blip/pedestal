@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Purchases from 'react-native-purchases';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { HeaderLogo } from '@/components/HeaderLogo';
@@ -144,15 +145,35 @@ export default function PaywallScreen() {
     setMessage(null);
 
     try {
-      // TODO: Replace with RevenueCat purchasePackage
-      // const offerings = await Purchases.getOfferings();
-      // const pkg = offerings.current?.availablePackages.find(p => p.identifier === selectedPlan);
-      // if (pkg) await Purchases.purchasePackage(pkg);
+      const offerings = await Purchases.getOfferings();
+      if (!offerings.current) {
+        setMessage('No offerings available. Please try again later.');
+        return;
+      }
 
-      // Placeholder: simulate success — set subscription flag
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      await AsyncStorage.setItem(STORAGE_KEYS.SUBSCRIPTION, 'true');
-      router.replace('/(tabs)');
+      // Map selected plan to RevenueCat package identifier
+      const packageMap: Record<PlanId, string> = {
+        monthly: '$rc_monthly',
+        annual: '$rc_annual',
+        lifetime: '$rc_lifetime',
+      };
+
+      const pkg = offerings.current.availablePackages.find(
+        (p) => p.identifier === packageMap[selectedPlan]
+      );
+
+      if (!pkg) {
+        setMessage('Selected plan not available. Please try another.');
+        return;
+      }
+
+      const { customerInfo } = await Purchases.purchasePackage(pkg);
+      const hasAccess = typeof customerInfo.entitlements.active['Pedestal: Speech Coach Pro'] !== 'undefined';
+
+      if (hasAccess) {
+        await AsyncStorage.setItem(STORAGE_KEYS.SUBSCRIPTION, 'true');
+        router.replace('/(tabs)');
+      }
     } catch (e: any) {
       if (e?.userCancelled) {
         // User cancelled — do nothing
@@ -170,15 +191,15 @@ export default function PaywallScreen() {
     setMessage(null);
 
     try {
-      // TODO: Replace with RevenueCat restorePurchases
-      // const customerInfo = await Purchases.restorePurchases();
-      // if (customerInfo.entitlements.active['pro']) {
-      //   router.replace('/(tabs)');
-      //   return;
-      // }
+      const customerInfo = await Purchases.restorePurchases();
+      const hasAccess = typeof customerInfo.entitlements.active['Pedestal: Speech Coach Pro'] !== 'undefined';
 
-      // Placeholder
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (hasAccess) {
+        await AsyncStorage.setItem(STORAGE_KEYS.SUBSCRIPTION, 'true');
+        router.replace('/(tabs)');
+        return;
+      }
+
       setMessage(STRINGS.PAYWALL.NO_PURCHASES);
     } catch {
       setMessage(STRINGS.PAYWALL.ERROR);

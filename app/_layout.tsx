@@ -1,13 +1,16 @@
 import 'react-native-reanimated';
 
 import { useEffect } from 'react';
+import { Platform } from 'react-native';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
+import Purchases from 'react-native-purchases';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { AppErrorBoundary } from '@/components/ErrorBoundary';
 import { Colors } from '@/constants/Colors';
+import { REVENUECAT_API_KEY } from '@/src/constants/config';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -28,6 +31,14 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
+      // Initialize RevenueCat
+      if (REVENUECAT_API_KEY) {
+        try {
+          Purchases.configure({ apiKey: REVENUECAT_API_KEY });
+        } catch (e) {
+          console.warn('RevenueCat init failed:', e);
+        }
+      }
       SplashScreen.hideAsync();
     }
   }, [loaded]);

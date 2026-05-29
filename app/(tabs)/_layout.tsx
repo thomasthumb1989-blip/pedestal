@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as StoreReview from 'expo-store-review';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Purchases from 'react-native-purchases';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { HeaderLogo } from '@/components/HeaderLogo';
@@ -57,8 +58,18 @@ export default function TabLayout() {
         return;
       }
 
-      const subscribed = await AsyncStorage.getItem(STORAGE_KEYS.SUBSCRIPTION);
-      if (subscribed === 'true') {
+      // Check subscription via RevenueCat
+      let isSubscribed = false;
+      try {
+        const customerInfo = await Purchases.getCustomerInfo();
+        isSubscribed = typeof customerInfo.entitlements.active['Pedestal: Speech Coach Pro'] !== 'undefined';
+      } catch {
+        // RevenueCat not ready or no network — fall back to stored flag
+        const storedSub = await AsyncStorage.getItem(STORAGE_KEYS.SUBSCRIPTION);
+        isSubscribed = storedSub === 'true';
+      }
+
+      if (isSubscribed) {
         // Subscriber — full access, maybe prompt review
         maybePromptReview();
         setReady(true);
